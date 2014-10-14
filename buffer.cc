@@ -97,6 +97,7 @@ void Buffer::strip_comment_characters(ifstream *m_source_file)
 	while( comment_char != NEW_LINE_CHAR ) {
 		source_file -> get(comment_char);
 	}
+	source_file -> get(comment_char);
 }
 
 void Buffer::dump_buffer() 
