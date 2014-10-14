@@ -23,6 +23,6 @@ scanner.o: scanner.h addoptoken.h idtoken.h muloptoken.h punctoken.h eoftoken.h 
 test_scanner.o: token.h addoptoken.h idtoken.h muloptoken.h punctoken.h eoftoken.h keywordtoken.h numtoken.h reloptoken.h scanner.h test_scanner.cc
 	g++ -c test_scanner.cc
 main: token.o keywordtoken.o test_scanner.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o
-	g++ -o main test_scanner.cc keywordtoken.o token.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o
+	g++ -g -Wall -pedantic -o main test_scanner.cc keywordtoken.o token.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o
 clean:
 	rm *.o
