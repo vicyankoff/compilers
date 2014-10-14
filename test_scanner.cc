@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	 			NumToken *token_num = static_cast<NumToken*>(scanner_token);
 				cout << "Token attribute: " << *token_num -> to_string() << endl;
 	 			break;}
-	 	 	case TOOKEN_NO_TYPE: {
+	 	 	case TOKEN_NO_TYPE:{
 	 	 		break;
 	 	 	}
 	 	 	case TOKEN_EOF: {
