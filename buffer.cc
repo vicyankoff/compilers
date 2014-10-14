@@ -61,7 +61,7 @@ void Buffer::fill_buffer()
 		previous_char_in_buffer = buffer -> back();
 		source_file -> get(next_file_char);
 
-		if(next_file_char == COMMENT_MARKER) {
+		while(next_file_char == COMMENT_MARKER) {
 			strip_comment_characters(source_file);
 			source_file -> get(next_file_char);
 		}
