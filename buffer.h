@@ -116,10 +116,6 @@ private:
   {
     return is_alphanumeric(c) || is_whitespace(c) || is_valid_nonalphanum_char(c);
   }
-
-	// Method to strip characters from comments
-  void strip_comment_characters(ifstream *m_source_file);
-
 };
 
 #endif

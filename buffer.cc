@@ -62,8 +62,9 @@ void Buffer::fill_buffer()
 		source_file -> get(next_file_char);
 
 		while(next_file_char == COMMENT_MARKER) {
-			strip_comment_characters(source_file);
-			source_file -> get(next_file_char);
+			while( next_file_char != NEW_LINE_CHAR && !source_file -> eof()) {
+				source_file -> get(next_file_char);
+			}
 		}
 
 		if( source_file -> eof() ) {
@@ -85,19 +86,6 @@ void Buffer::fill_buffer()
 			buffer_fatal_error(next_file_char);
 		}
 	}
-}
-
-void Buffer::strip_comment_characters(ifstream *m_source_file) 
-{
-	char comment_char;
-	ifstream *source_file = m_source_file;
-
-	source_file -> get(comment_char);
-
-	while( comment_char != NEW_LINE_CHAR ) {
-		source_file -> get(comment_char);
-	}
-	source_file -> get(comment_char);
 }
 
 void Buffer::dump_buffer() 
