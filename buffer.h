@@ -55,15 +55,15 @@
 	// Put a character back at the front of the buffer.
   void unread_char (char c);
 
-  // For debugging: dump the contents of the buffer on the screen.
-  void dump_buffer();
-
 private:
 	// Storage for the buffer
   list<char> *buffer;
 
 	// Input stream for the source.
   ifstream *source_file;
+
+  // For debugging: dump the contents of the buffer on the screen.
+  void dump_buffer();
 
 	/* If you encounter an error from which you can't recover, print an
    	error message and call this method.

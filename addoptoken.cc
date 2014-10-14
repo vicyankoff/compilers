@@ -49,7 +49,7 @@ string *AddopToken::to_string()
 			attribute_name = new string ("SUBTRACTION");
 			break;
 		case ADDOP_OR:
-			attribute_name = new string ("LOGICAL OR");
+			attribute_name = new string ("OR");
 			break;
 		case ADDOP_NO_ATTR:
 			attribute_name = new string ("NO ATTRIBUTE VALUE");

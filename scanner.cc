@@ -103,12 +103,9 @@ Token *Scanner::next_token()
 			} else if (c == EOF_MARKER) {
 				state = FINAL_STATE;
 				token = new EofToken();
-			} else {
-				token = new IdToken(attribute);
-				state = FINAL_STATE;
-				buffer -> unread_char(c);
 			} break;
 		
+			// KEYWORD TOKENS
 			case 101:
 			if( c == 'h') {
 				state = 102;
@@ -148,6 +145,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_THEN
 			case 104:
 			if(is_alphanumeric(c)) {
 				state = 601;
@@ -213,6 +211,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_PRINT
 			case 109:
 			if(is_alphanumeric(c)) {
 				state = 601;
@@ -278,6 +277,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_PROGRAM
 			case 114:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -353,6 +353,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_PROCEDURE
 			case 120:
 			 if( is_alphanumeric(c)) {
 				state = 601;
@@ -379,6 +380,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_IF
 			case 122:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -402,6 +404,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_INT
 			case 124:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -454,6 +457,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_BOOL
 			case 128:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -503,6 +507,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_BEGIN
 			case 132:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -542,6 +547,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_END
 			case 135:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -578,6 +584,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_ELSE
 			case 138:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -640,6 +647,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_WHILE
 			case 143:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -676,6 +684,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// KW_NOT
 			case 146:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -686,12 +695,15 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// PUNCTUATION TOKENS
+			// ;
 			case 201:
 				token = new PuncToken(PUNC_SEMI);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// :
 			case 202:
 			if( c == '=') {
 				state = 203;
@@ -702,56 +714,43 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// :=
 			case 203:
 				token = new PuncToken(PUNC_ASSIGN);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// ,
 			case 204:
 				token = new PuncToken(PUNC_COMMA);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// )
 			case 205:
 				token = new PuncToken(PUNC_CLOSE);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// (
 			case 206:
 				token = new PuncToken(PUNC_OPEN);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
-			case 601:
-				if( is_alphanumeric(c)) {
-					state = 601;
-					attribute -> push_back(c);
-				} else {
-					token = new IdToken(attribute);
-					state = FINAL_STATE;
-					buffer -> unread_char(c);
-				} break;
-
-			case 701:
-			if( is_digit(c)) {
-				state = 701;
-				attribute -> push_back(c);
-			} else {
-				token = new NumToken(attribute);
-				state = FINAL_STATE;
-				buffer -> unread_char(c);
-			} break;
-
+			// RELATIONAL_TOKEN
+			// =
 			case 301:
 				token = new RelopToken(RELOP_EQ);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// >
 			case 302:
 			if( c == '=') {
 				state = 303;
@@ -762,12 +761,14 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// >=
 			case 303:
 				token = new RelopToken(RELOP_GE);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// <
 			case 304:
 			if( c == '=') {
 				state = 306;
@@ -781,30 +782,36 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// <>
 			case 305:
 				token = new RelopToken(RELOP_NEQ);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// <=
 			case 306:
 				token = new RelopToken(RELOP_LE);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// ADDOP_TOKEN
+			// +
 			case 401:
 				token = new AddopToken(ADDOP_ADD);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// -
 			case 402:
 				token = new AddopToken(ADDOP_SUB);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			
 			case 403:
 			if( c == 'r') {
 				state = 404;
@@ -818,6 +825,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// OR
 			case 404:
 				if( is_alphanumeric(c)) {
 					state = 601;
@@ -829,12 +837,15 @@ Token *Scanner::next_token()
 				}
 				break;
 
+			// MULOP_TOKEN
+			// *
 			case 501:
 				token = new MulopToken(MULOP_MUL);
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 				break;
 
+			// /
 			case 502:
 				token = new MulopToken(MULOP_DIV);
 				state = FINAL_STATE;
@@ -867,6 +878,7 @@ Token *Scanner::next_token()
 				buffer -> unread_char(c);
 			} break;
 
+			// AND
 			case 505:
 			if( is_alphanumeric(c)) {
 				state = 601;
@@ -876,6 +888,32 @@ Token *Scanner::next_token()
 				state = FINAL_STATE;
 				buffer -> unread_char(c);
 			} break;
+
+			// IDENTIFIER
+			case 601:
+				if( is_alphanumeric(c)) {
+					state = 601;
+					attribute -> push_back(c);
+				} else {
+					token = new IdToken(attribute);
+					state = FINAL_STATE;
+					buffer -> unread_char(c);
+				} break;
+
+			// NUM
+			case 701:
+			if( is_digit(c)) {
+				state = 701;
+				attribute -> push_back(c);
+			} else {
+				token = new NumToken(attribute);
+				state = FINAL_STATE;
+				buffer -> unread_char(c);
+			} break;
+
+			default:
+				scanner_fatal_error();
+				break;
 		}
 	}
 	return token; 

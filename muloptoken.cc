@@ -43,13 +43,13 @@ string *MulopToken::to_string()
 	switch (attribute)
 	{
 		case MULOP_MUL:
-			attribute_name = new string ("MULTIPLIATION");
+			attribute_name = new string ("MULTIPLICATION");
 			break;
 		case MULOP_DIV:
 			attribute_name = new string ("DIVISION");
 			break;
 		case MULOP_AND:
-			attribute_name = new string ("LOGICAL AND");
+			attribute_name = new string ("AND");
 			break;
 		case MULOP_NO_ATTR:
 			attribute_name = new string ("NO ATTRIBUTE VALUE");

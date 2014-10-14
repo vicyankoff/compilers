@@ -1,6 +1,0 @@
-program a;
-# comment
-  b:int;
-begin
-   b:=1;
-end;

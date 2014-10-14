@@ -63,7 +63,8 @@ void Buffer::fill_buffer()
 
 		while(next_file_char == COMMENT_MARKER) {
 			while( next_file_char != NEW_LINE_CHAR && !source_file -> eof()) {
-				source_file -> get(next_file_char);
+			source_file -> get(next_file_char);
+				
 			}
 		}
 
@@ -84,6 +85,7 @@ void Buffer::fill_buffer()
 			buffer_number_of_chars++;
 		} else {
 			buffer_fatal_error(next_file_char);
+			exit(0);
 		}
 	}
 }
