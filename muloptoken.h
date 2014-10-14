@@ -11,7 +11,7 @@ typedef enum mulop_attr
 	MULOP_MUL = 500,
 	MULOP_DIV = 501,
 	MULOP_AND = 502,
-	MULOP_NO_ATTR = 503,
+	MULOP_NO_ATTR = 503
 } mulop_attr_type;
 
 // All token classes are subclasses of token
