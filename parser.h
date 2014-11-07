@@ -44,48 +44,48 @@ class Parser {
       bool parse_identifier_list_prm();
       // 10
       bool parse_standard_type();
-      // // 11
-      // bool parse_block();
-      // // 12
-      // bool parse_stmt_list(); 
-      // // 13
-      // bool parse_stmt_list_prm();
-      // // 14
-      // bool parse_stmt();
-      // // 15
-      // bool parse_stmt_ass_proc_tail();
-      // // 16
-      // bool parse_assignment_stmt_tail();
-      // // 17
-      // bool parse_if_stmt();
-      // // 18
-      // bool parse_if_stmt_hat();
-      // // 19
-      // bool parse_while_stmt();
-      // // 20
-      // bool parse_print_stmt();
-      // // 21
-      // bool parse_procedure_call_stmt_tail();
-      // // 22
-      // bool parse_expr_list();
-      // // 23
-      // bool parse_expr_list_hat();
-      // // 24
-      // bool parse_expr();
-      // // 25
-      // bool parse_expr_hat();
-      // // 26
-      // bool parse_simple_expr();
-      // // 27
-      // bool parse_simple_expr_prm();
-      // // 28
-      // bool parse_term();
-      // // 29
-      // bool parse_term_prm();
-      // // 30
-      // bool parse_factor();
-      // // 31
-      // bool parse_sign();
+      // 11
+      bool parse_block();
+      // 12
+      bool parse_stmt_list(); 
+      // 13
+      bool parse_stmt_list_prm();
+      // 14
+      bool parse_stmt();
+      // 15
+      bool parse_stmt_ass_proc_tail();
+      // 16
+      bool parse_assignment_stmt_tail();
+      // 17
+      bool parse_if_stmt();
+      // 18
+      bool parse_if_stmt_hat();
+      // 19
+      bool parse_while_stmt();
+      // 20
+      bool parse_print_stmt();
+      // 21
+      bool parse_procedure_call_stmt_tail();
+      // 22
+      bool parse_expr_list();
+      // 23
+      bool parse_expr_list_hat();
+      // 24
+      bool parse_expr();
+      // 25
+      bool parse_expr_hat();
+      // 26
+      bool parse_simple_expr();
+      // 27
+      bool parse_simple_expr_prm();
+      // 28
+      bool parse_term();
+      // 29
+      bool parse_term_prm();
+      // 30
+      bool parse_factor();
+      // 31
+      bool parse_sign();
 
   
       // Return true if current word is the EOF token
