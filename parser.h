@@ -30,20 +30,20 @@ class Parser {
       bool parse_variable_decl_list();
       // 3
       bool parse_variable_decl();
-      // // 4
-      // bool parse_procedure_decl_list();
-      // // 5
-      // bool parse_procedure_decl();
-      // // 6
-      // bool parse_arg_list();
-      // // 7
-      // bool parse_arg_list_hat();
-      // // 8
-      // bool parse_identifier_list();
-      // // 9
-      // bool parse_identifier_list_prm();
-      // // 10
-      // bool parse_standard_type();
+      // 4
+      bool parse_procedure_decl_list();
+      // 5
+      bool parse_procedure_decl();
+      // 6
+      bool parse_arg_list();
+      // 7
+      bool parse_arg_list_hat();
+      // 8
+      bool parse_identifier_list();
+      // 9
+      bool parse_identifier_list_prm();
+      // 10
+      bool parse_standard_type();
       // // 11
       // bool parse_block();
       // // 12

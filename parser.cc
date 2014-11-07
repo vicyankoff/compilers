@@ -28,7 +28,8 @@ bool Parser::parse_program()
 
 	// Match keyword program
 	if (word->get_token_type() == TOKEN_KEYWORD
-		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_PROGRAM) {
+		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_PROGRAM)
+	{
 		/* Advance - Notice that we only delete a token on an ADVANCE, and, if we
 		ADVANCE, it is the ADVANCE code that is responsible for getting the next token.
 		*/
@@ -36,61 +37,70 @@ bool Parser::parse_program()
 		word = lex->next_token();
 
 		// Match identifier
-		if (word->get_token_type() == TOKEN_ID) {
+		if (word->get_token_type() == TOKEN_ID)
+		{
 			// ADVANCE
 			delete word;
 			word = lex->next_token();	
 
 			// Match ;
 			if (word->get_token_type() == TOKEN_PUNC
-				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI) {
+				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI)
+			{
 				// ADVANCE
 				delete word;
 				word = lex->next_token();
 
 				// Match DECL_LIST
-				if( parse_decl_list()) {
-
+				if (parse_decl_list())
+				{
 					// Match BLOCK - ACTION
-					if (parse_block()) {
-
+					if (parse_block()) 
+					{
 						// Match ;
 						if (word->get_token_type() == TOKEN_PUNC
-							&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI) {
+							&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI)
+						{
 
 							// ADVANCE
 							delete word;
 							word = lex->next_token();
 							return true;
-						} else { // Failed to match the second semicolon
+						} else 
+						{ // Failed to match the second semicolon
 							expected = new string ("';'");
 							parse_error (expected, word);
 							delete expected;
 							delete word;
 							return false;
 						}
-					} else { // Failed to parse BLOCK
+					} else
+					{ // Failed to parse BLOCK
 						return false;
 					}
 
-				} else { // Failed to parse DECL_LIST
+				} else
+				{ // Failed to parse DECL_LIST
 					return false;
 				}
-			} else { // Failed to match the first semicolon
+			} else
+			{ // Failed to match the first semicolon
 				expected = new string ("';'");
 				parse_error (expected, word);
 				delete expected;
 				delete word;
 				return false;
 			}
-		} else { // Failed to match an identifier			
+		} else 
+		{ // Failed to match an identifier			
 			expected = new string ("identifier");
 			parse_error(expected, word);
 			delete expected;
 			delete word;
 			return false;
 		}
-	} else { // Failed to match the keyword program
+	} else 
+	{ // Failed to match the keyword program
 		expected = new string ("program");
 		parse_error(expected, word);
 		delete expected;
@@ -106,46 +116,61 @@ bool Parser::parse_decl_list()
 		|| (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_PROCEDURE)
 		|| (word->get_token_type() == TOKEN_KEYWORD
-			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BEGIN)) {
-		if (parse_variable_decl_list()) {
-			if (parse_procedure_decl_list()) {
+			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BEGIN))
+	{
+		
+		if (parse_variable_decl_list()) 
+		{
+		
+			if (parse_procedure_decl_list()) 
+			{
 				return true;
-			} else {
+			} else 
+			{
 				return false;
 			}
-		} else {
+		} else 
+		{
 			return false;
 		}
-	} else {
+	} else 
+	{
 		expected = new string ("identifier, keyword \"begin\" or keyword \"procedure\"");
 		parse_error (expected, word);
-    delete expected;
-    delete word;
+    	delete expected;
+    	delete word;
 		return false;
 	}
 	return false;
 }
 
-bool Parse::parse_variable_decl_list()
+bool Parser::parse_variable_decl_list()
 {
 	// VARIABLE_DECL_LIST -> VARIABLE_DECL ; VARIABLE_DECL_LIST
 	// Predict (VARIABLE_DECL_LIST -> VARIABLE_DECL ; VARIABLE_DECL_LIST) = {identifier}
-	if (word->get_token_type() == TOKEN_ID) {
+	if (word->get_token_type() == TOKEN_ID) 
+	{
 
 		// Match VARIABLE_DECL
-		if (parse_variable_decl()) {
+		if (parse_variable_decl()) 
+		{
+			
 			// Match ;
 			if (word->get_token_type == TOKEN_PUNC
-				&& static_cast<PuncToken *>(word)->get_attribute == PUNC_SEMI) {
+				&& static_cast<PuncToken *>(word)->get_attribute == PUNC_SEMI) 
+			{
 				delete word;
 				word = lex->next_token();
 
-				if (parse_variable_decl_list()) {
+				if (parse_variable_decl_list()) 
+				{
 					return true;
-				} else { // Failed to match VARIABLE_DECL_LIST
+				} else 
+				{ // Failed to match VARIABLE_DECL_LIST
 					return false;
 				}
-			} else { // Failed to match ;
+			} else 
+			{ // Failed to match ;
 				expected = new string ("';'")
 				parse_error (expected, word);
 				delete expected;
@@ -153,16 +178,19 @@ bool Parse::parse_variable_decl_list()
 				return false;
 			}
 
-		} else { // Failed to match VARIABLE_DECL
+		} else 
+		{ // Failed to match VARIABLE_DECL
 			return false;
 		}
 
 	} else if ((word->get_token_type() == TOKEN_KEYWORD
 					&& static_cast<KeywordToken *>(word)->get_attribute() == KW_PROCEDURE)
 				|| (word->get_token_type == TOKEN_KEYWORD
-					&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BEGIN)) {
+					&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BEGIN)) 
+	{
 		return true;
-	} else {
+	} else 
+	{
 		expected = new string ("identifier or procedure or begin");
 		parse_error (expected, word);
 		delete expected;
@@ -172,34 +200,42 @@ bool Parse::parse_variable_decl_list()
 	return false;
 }
 
-bool Parse::parse_variable_decl()
+bool Parser::parse_variable_decl()
 {
 	// VARIABLE_DECL -> IDENTIFIER_LIST : STANDARD_TYPE
 	// Predict {identifier}
-	if (word->get_token_type == TOKEN_ID ) {
+	if (word->get_token_type == TOKEN_ID ) 
+	{
 		// Match IDENTIFIER_LIST
-		if (parse_identifier_list()) {
+		if (parse_identifier_list()) 
+		{
 
 			if (word->get_token_type() == TOKEN_PUNC
-				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_COLON) {
+				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_COLON) 
+			{
 				delete word;
 				word = lex->next_token();
+		
 				if (parse_standard_type()) {
 					return true;
-				} else { // Failed to match STANDARD_TYPE
+				} else 
+				{ // Failed to match STANDARD_TYPE
 					return false;
 				}
-			} else {
+			} else 
+			{
 				expected = new string ("':'");
 				parse_error (expected, word);
 				delete expected;
 				delete word;
 				return false;
 			}
-		} else {
+		} else 
+		{
 			return false;
 		}
-	} else {
+	} else 
+	{
 		expected = new string ("identifier");
 		parse_error (expected, word);
 		delete expected;
@@ -209,39 +245,48 @@ bool Parse::parse_variable_decl()
 	return false;
 }
 
-bool parse_procedure_decl_list() 
+bool Parser::parse_procedure_decl_list() 
 {
 	// procedure_decl_list -> procedure_decl ; procedure_decl_list
 	// Predict = {procedure}
 	if (word->get_token_type == TOKEN_KEYWORD
-		&& static_cast<KeywordToken *>(word)->get_attribute == KW_PROCEDURE) {
+		&& static_cast<KeywordToken *>(word)->get_attribute == KW_PROCEDURE) 
+	{
 
-		if (parse_procedure_decl()) {
+		if (parse_procedure_decl()) 
+		{
 			
 			if (word->get_token_type == TOKEN_PUNC 
-				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI) {
+				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI) 
+			{
 				delete word;
 				word = lex->next_token();
 
-				if (parse_procedure_decl_list()) {
+				if (parse_procedure_decl_list()) 
+				{
 					return true;
-				} else {
+				} else 
+				{
 					return false;
 				}
-			} else {
+			} else 
+			{
 				expected = new string ("';'");
 				parse_error (expected, word);
 				delete expected;
 				delete word;
 				return false;
 			}
-		} else {
+		} else 
+		{
 			return false;
 		}
 	} else if (word->get_token_type == TOKEN_KEYWORD
-			 	&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BEGIN) {
+			 	&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BEGIN) 
+	{
 		return true;
-	} else {
+	} else 
+	{
 		expected = new string ("procedure or begin");
 		parse_error (expected, word);
 		delete expected;
@@ -250,3 +295,261 @@ bool parse_procedure_decl_list()
 	}
 	return false;
 }
+
+bool Parser::parse_procedure_decl()
+{
+	// PROCEDURE_DECL -> procedure identifier ( ARG_LIST ) VARIABLE_DECL_LIST BLOCK
+	// Predict {procedure}
+
+	if (word->get_token_type == TOKEN_KEYWORD
+		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_PROCEDURE) 
+	{
+		delete word;
+		word = lex->next_token();
+
+		if (word->get_token_type == TOKEN_ID) 
+		{
+			delete word;
+			word = lex->next_token();
+			
+			if (word->get_token_type == TOKEN_PUNC 
+				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_OPEN) 
+			{
+				delete word;
+				word = lex->next_token();
+			
+				if (parse_arg_list()) 
+				{
+			
+					if (word->get_token_type() == TOKEN_PUNC 
+						&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_CLOSE) 
+					{
+						delete word;
+						word = lex->next_token();
+			
+						if (parse_variable_decl_list()) 
+						{
+			
+							if (parse_block()) 
+							{
+								return true;
+							} else 
+							{
+								return false;
+							}
+						} else 
+						{
+							return false;
+						}
+					} else 
+					{
+						expected = new string ("')'");
+						parse_error (expected, word);
+						delete expected;
+						delete word;
+						return false;
+					}
+				} else 
+				{
+					return false;
+				}
+			} else 
+			{
+				expected = new string ("'('");
+				parse_error (expected, word);
+				delete expected;
+				delete word;
+				return false;
+			}
+		} else 
+		{
+			expected = new string ("identifier");
+			parse_error (expected, word);
+			delete expected;
+			delete word;
+			return false;
+		}
+	} else 
+	{
+		expected = new string ("procedure");
+		parse_error (expected, word);
+		delete expected;
+		delete word;
+		return false;
+	}
+	return false;
+}
+
+bool Parser::parse_arg_list() 
+{
+	// ARG_LIST -> IDENTIFIER_LIST : STANDARD_TYPE ARG_LIST_HAT 
+	// Predict {identifier}
+	if (word->get_token_type == TOKEN_ID) 
+	{
+		if (parse_identifier_list()) 
+		{
+			if (word->get_token_type() == TOKEN_PUNC
+				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_COLON)
+			{
+				delete word;
+				word = lex->next_token();
+
+				if (parse_standard_type()) 
+				{
+					if (parse_arg_list_hat()) 
+					{
+						return true;
+					} else 
+					{
+						return false;
+					}
+				} else
+				{
+					return false;
+				}
+			} else
+			{
+				expected = new string ("':'");
+				parse_error (expected, word);
+				delete expected;
+				delete word;
+				return false;	
+			}
+		} else 
+		{
+			return false;
+		}
+	} else if (word->get_token_type() == TOKEN_PUNC
+				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_CLOSE) 
+	{
+		return true;
+	} else 
+	{	
+		expected = new string ("identifier or )");
+		parse_error (expected, word);
+		delete expected;
+		delete word;
+		return false;
+	}
+	return false;
+}
+
+bool Parser::parse_arg_list_hat() 
+{
+	// ARG_LIST_HAT -> ; ARG_LIST
+	// Predict {;} 
+	if (word->get_token_type() == TOKEN_PUNC
+		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI) 
+	{
+		delete word;
+		word = lex->next_token();
+
+		if (parse_arg_list()) 
+		{
+			retur true;
+		} else 
+		{
+			return false;
+		}
+	} else if (word->get_token_type() == TOKEN_PUNC
+				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_CLOSE)
+	{
+		return true;
+	} else
+	{
+		expected = new string ("';' or ')'");
+		parse_error (expected, word);
+		delete expected;
+		delete word;
+		return false;
+	}
+	return false;
+}
+
+bool Parser::parse_identifier_list() 
+{
+	if (word->get_token_type() == TOKEN_ID ) 
+	{
+		delete word;
+		word = lex->next_token();
+		if (parse_identifier_list_prm()) 
+		{
+			return true;
+		} else 
+		{
+			return false;
+		}
+	} else 
+	{
+		expected = new string ("identifier");
+		parse_error (expected, word);
+		delete expected;
+		delete word;
+		return false;
+	}
+	return false;
+}
+
+bool Parser::parse_identifier_list_prm()
+{
+	if (word->get_token_type() == TOKEN_PUNC
+		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_COMMA) 
+	{
+		delete word;
+		word = lex->next_token();
+
+		if (word->get_token_type() == TOKEN_ID) 
+		{
+			delete word;
+			word = lex->next_token();
+
+			if (parse_identifier_list_prm()) 
+			{
+				return true;
+			} else 
+			{
+				return false;
+			}
+		} else
+		{
+			expected = new string ("identifier");
+			parse_error (expected, word);
+			delete expected;
+			delete word;
+			return false;
+		}
+	} else if (word->get_token_type() == TOKEN_PUNC
+				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI)
+	{
+		return true;
+	} else 
+	{
+		expected = new string ("',' or ':'");
+		parse_error	(expected, word);
+		delete expected;
+		delete word;
+		return false;
+	}
+	return false;
+}
+
+bool Parser::parse_standard_type() 
+{
+	if ((word->get_token_type() == TOKEN_KEYWORD
+			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_INT)
+		|| (word->get_token_type() == TOKEN_KEYWORD
+			&& static_cast<KeywordToken *>(word)-get_attribute() == KW_BOOL)) 
+	{
+		return true;
+	} else 
+	{
+		expected = new string ("int or bool");
+		parse_error (expected, word);
+		delete expected;
+		delete word;
+		return false;
+	}
+	return false;
+}
+
+
