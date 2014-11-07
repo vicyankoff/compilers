@@ -19,7 +19,6 @@
 #include "numtoken.h"
 #include "eoftoken.h"
 
-
 #define EOF_MARKER '$'
 
 using namespace std;
