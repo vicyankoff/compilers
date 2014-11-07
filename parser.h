@@ -26,10 +26,10 @@ class Parser {
    private:
       // 1
       bool parse_decl_list();
-      // // 2 Predict
-      // bool parse_variable_decl_list();
-      // // 3
-      // bool parse_variable_decl();
+      // 2 Predict
+      bool parse_variable_decl_list();
+      // 3
+      bool parse_variable_decl();
       // // 4
       // bool parse_procedure_decl_list();
       // // 5
