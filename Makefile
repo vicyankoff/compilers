@@ -18,11 +18,17 @@ reloptoken.o: reloptoken.h token.h reloptoken.cc
 	g++ -c reloptoken.cc token.cc
 buffer.o: buffer.h buffer.cc
 	g++ -c buffer.cc
-scanner.o: scanner.h addoptoken.h idtoken.h muloptoken.h punctoken.h eoftoken.h keywordtoken.h numtoken.h reloptoken.h buffer.h scanner.cc token.h
-	g++ -c scanner.cc addoptoken.cc idtoken.cc muloptoken.cc punctoken.cc eoftoken.cc keywordtoken.cc numtoken.cc reloptoken.cc buffer.cc token.cc
+scanner.o: scanner.cc scanner.h token.h	keywordtoken.h punctoken.h reloptoken.h addoptoken.h muloptoken.h idtoken.h numtoken.h eoftoken.h buffer.h
+	g++ -c scanner.cc token.cc keywordtoken.cc punctoken.cc reloptoken.cc addoptoken.cc muloptoken.cc idtoken.cc numtoken.cc eoftoken.cc buffer.cc
+parser.o: parser.cc parser.h token.h keywordtoken.h punctoken.h reloptoken.h addoptoken.h muloptoken.h idtoken.h numtoken.h eoftoken.h	scanner.h
+		g++ -c parser.cc token.cc keywordtoken.cc punctoken.cc reloptoken.cc addoptoken.cc muloptoken.cc idtoken.cc numtoken.cc eoftoken.cc scanner.cc
 test_scanner.o: token.h addoptoken.h idtoken.h muloptoken.h punctoken.h eoftoken.h keywordtoken.h numtoken.h reloptoken.h test_scanner.cc scanner.h
 	g++ -c test_scanner.cc 
 main: token.o keywordtoken.o test_scanner.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o
 	g++ -g -Wall -pedantic -o main test_scanner.cc keywordtoken.o token.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o
+truc.o: parser.h scanner.h truc.cc
+	g++ -c truc.cc
+truc: token.o keywordtoken.o test_scanner.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser.o truc.o
+	g++ -g -Wall -pedantic -o truc truc.cc keywordtoken.o token.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser.o
 clean:
 	rm *.o
