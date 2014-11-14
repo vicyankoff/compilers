@@ -14,7 +14,8 @@ begin
 		if a <= 2 then begin
 			a := (a + 1) * 3;
 		end # No ';' at the end of blocks
-		else begin
+		else 
+		begin
 			a := (a - 1) * 2;
 		end; # This ';' ends the if stmt
 

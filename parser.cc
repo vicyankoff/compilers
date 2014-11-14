@@ -809,7 +809,6 @@ bool Parser::parse_stmt_ass_proc_tail()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_assignment_stmt_tail()
@@ -835,7 +834,6 @@ bool Parser::parse_assignment_stmt_tail()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_if_stmt() 
@@ -886,7 +884,6 @@ bool Parser::parse_if_stmt()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_if_stmt_hat() 
@@ -947,7 +944,6 @@ bool Parser::parse_while_stmt()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_print_stmt() 
@@ -972,7 +968,6 @@ bool Parser::parse_print_stmt()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_procedure_call_stmt_tail() 
@@ -1010,7 +1005,6 @@ bool Parser::parse_procedure_call_stmt_tail()
 			delete word;
 			return false;
 	}
-	return false;
 }
 
 bool Parser::parse_expr_list() 
@@ -1051,7 +1045,6 @@ bool Parser::parse_expr_list()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_expr_list_hat() 
@@ -1081,7 +1074,6 @@ bool Parser::parse_expr_list_hat()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_expr() 
@@ -1118,7 +1110,6 @@ bool Parser::parse_expr()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_expr_hat() 
@@ -1129,7 +1120,7 @@ bool Parser::parse_expr_hat()
 		word = lex->next_token();
 		if (parse_simple_expr()) 
 		{
-			return false;
+			return true;
 		} else
 		{
 			return false;
@@ -1141,7 +1132,9 @@ bool Parser::parse_expr_hat()
 	|| (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BEGIN)
 	|| (word->get_token_type() == TOKEN_PUNC
-		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_COMMA)) 
+		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_COMMA)
+	|| (word->get_token_type() == TOKEN_PUNC
+		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_CLOSE)) 
 	{
 		return true;
 	} else 
@@ -1152,7 +1145,6 @@ bool Parser::parse_expr_hat()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_simple_expr() 
@@ -1218,7 +1210,9 @@ bool Parser::parse_simple_expr_prm()
 		|| (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BEGIN)
 		|| (word->get_token_type() == TOKEN_PUNC
-		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_COMMA))
+		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_COMMA)
+		|| (word->get_token_type() == TOKEN_PUNC
+			&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_CLOSE))
 	{
 		return true;
 	} else 
@@ -1229,7 +1223,6 @@ bool Parser::parse_simple_expr_prm()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_term() 
@@ -1265,7 +1258,6 @@ bool Parser::parse_term()
 		delete word;
 		return false;	
 	}
-	return false;
 }
 
 bool Parser::parse_term_prm() 
@@ -1295,7 +1287,9 @@ bool Parser::parse_term_prm()
 	|| (word->get_token_type() == TOKEN_PUNC
 		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_COMMA)
 	|| (word->get_token_type() == TOKEN_RELOP)
-	|| (word->get_token_type() == TOKEN_ADDOP)) 
+	|| (word->get_token_type() == TOKEN_ADDOP)
+	|| (word->get_token_type() == TOKEN_PUNC
+		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_CLOSE)) 
 	{
 		return true;
 	} else 
@@ -1306,7 +1300,6 @@ bool Parser::parse_term_prm()
 		delete word;
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_factor()
@@ -1316,11 +1309,13 @@ bool Parser::parse_factor()
 		delete word;
 		word = lex->next_token();
 		return true;
+
 	} else if (word->get_token_type() == TOKEN_NUM) 
 	{		
 		delete word;
 		word = lex->next_token();
 		return true;
+
 	} else if (word->get_token_type() == TOKEN_PUNC
 		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_OPEN) 
 	{
@@ -1330,6 +1325,7 @@ bool Parser::parse_factor()
 		{
 			delete word;
 			word = lex->next_token();
+
 			if (parse_expr()) 
 			{
 				if (word->get_token_type() == TOKEN_PUNC
@@ -1405,13 +1401,12 @@ bool Parser::parse_factor()
 		expected = new string ("identifier or num or ( or not or +...Failed to parse in parse_factor()");
 		return false;
 	}
-	return false;
 }
 
 bool Parser::parse_sign() 
 {
-	if ((word->get_token_type() == TOKEN_ADDOP
-			&& static_cast<AddopToken *>(word)->get_attribute() == ADDOP_ADD))
+	if (word->get_token_type() == TOKEN_ADDOP
+			&& static_cast<AddopToken *>(word)->get_attribute() == ADDOP_ADD)
 	{
 		delete word;
 		word = lex->next_token();
@@ -1429,5 +1424,4 @@ bool Parser::parse_sign()
 		delete word;
 		return false;
 	}
-	return false;
 }

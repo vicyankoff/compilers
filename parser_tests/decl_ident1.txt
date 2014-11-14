@@ -1,0 +1,6 @@
+program viktor ;
+	a: int;
+	b: bool;
+begin
+print viktor ;
+end ;
