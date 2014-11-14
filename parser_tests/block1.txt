@@ -1,5 +1,5 @@
 program viktor ;
 begin
 	b:= 1 = 0;
-	print viktor ;
+	print viktor;
 end ;
