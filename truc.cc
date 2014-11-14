@@ -9,7 +9,13 @@ int main(int argc, char *argv[])
 	Parser *parser = new Parser(scanner);
 	if( parser->parse_program()) 
 	{
-		cout << "The parse has succeeded" << endl;
+		if (!parser->done_with_input())
+		{
+			cout << "Input after the end of program" << endl;
+		} else
+		{
+			cout << "The parse has succeeded" << endl;
+		} 
 	} else 
 	{
 		cout << "The parse has a syntax error" << endl;

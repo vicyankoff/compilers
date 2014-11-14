@@ -22,6 +22,10 @@ class Parser {
       ~Parser();
   
       bool parse_program();
+
+        
+      // Return true if current word is the EOF token
+      bool done_with_input();
   
    private:
       // 1
@@ -86,10 +90,6 @@ class Parser {
       bool parse_factor();
       // 31
       bool parse_sign();
-
-  
-      // Return true if current word is the EOF token
-      bool done_with_input();
   
       // The lexical analyzer
       Scanner *lex;
