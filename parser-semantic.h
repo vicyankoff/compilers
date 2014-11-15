@@ -1,5 +1,5 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef PARSER-SEMANTIC_H
+#define PARSER-SEMANTIC_H
 
 #include "token.h"
 #include "keywordtoken.h"
@@ -122,7 +122,7 @@ class Parser {
 			/* Called when an undeclared identifier is referenced in a statement
 			 * Print the identifier and the current environment
 			 */
-			void undeclared_id_error(string *, string *env);
+			void undeclared_id_error(string *id, string *env);
 };
 
 #endif

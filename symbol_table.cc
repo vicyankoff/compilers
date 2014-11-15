@@ -119,7 +119,6 @@ void Symbol_Table::set_parm_pos (int pos)
   }
 }
 
-
 void Symbol_Table::error_stab_overflow (string *id, string *env)
 {
   // Probably should be written to cerr.  Will fix in 

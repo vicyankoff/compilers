@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "parser-semantic.h"
 
 Parser::Parser(Scanner *s) 
 {
@@ -114,6 +114,11 @@ void Parser::type_error(Token *where)
 	cout << "Type error occured in " << where->get
 }
 
+void Parser::undeclared_id_error(string *id, string *env)
+{
+		cout << "Undeclared error occurs with id: " << *id <<endl;
+		cout << "Current environment: " << *env << endl;
+}
 
 bool Parser::done_with_input() 
 {
@@ -138,6 +143,12 @@ bool Parser::parse_program()
 		// Match identifier
 		if (word->get_token_type() == TOKEN_ID)
 		{
+
+			stab->install (static_cast<IdToken *>(word)->get_attribute(), 
+			"_EXTERNAL", PROGRAM_T);
+			current_env = new string (static_cast<IdToken *>(word)->get_attribute());
+			main_env = new string (static_cast<IdToken *>(word)->get_attribute());
+
 			// ADVANCE
 			delete word;
 			word = lex->next_token();	
@@ -298,6 +309,8 @@ bool Parser::parse_variable_decl_list()
 
 bool Parser::parse_variable_decl()
 {
+
+	expr_type standard_type_type;
 	// VARIABLE_DECL -> IDENTIFIER_LIST : STANDARD_TYPE
 	// Predict {identifier}
 	if (word->get_token_type() == TOKEN_ID) 
@@ -312,7 +325,9 @@ bool Parser::parse_variable_decl()
 				delete word;
 				word = lex->next_token();
 		
-				if (parse_standard_type()) {
+				if (parse_standard_type(standard_type_type)) {
+
+					stab->update_type (standard_type_type);
 					return true;
 				} else 
 				{ // Failed to match STANDARD_TYPE
@@ -403,6 +418,12 @@ bool Parser::parse_procedure_decl()
 
 		if (word->get_token_type() == TOKEN_ID) 
 		{
+
+			stab->install (static_cast<IdToken *>(word)->get_attribute(),
+			current_env, PROCEDURE_T);
+			*current_env = "identifier";
+			parm_pos = 0;
+
 			delete word;
 			word = lex->next_token();
 			
@@ -426,6 +447,7 @@ bool Parser::parse_procedure_decl()
 			
 							if (parse_block()) 
 							{
+								*current_env = "main_env";
 								return true;
 							} else 
 							{
