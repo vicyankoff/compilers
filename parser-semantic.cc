@@ -3,7 +3,17 @@
 Parser::Parser(Scanner *s) 
 {
 	lex = s;
+	
+	// Init the word variable
 	word = lex->next_token();
+
+	// Create the symbol table
+	stab = new Symbol_Table();
+
+	// Init the environments to null
+	current_env = NULL;
+	main_env = NULL;
+	parm_pos = -1;
 }
 
 Parser::~Parser() 
@@ -59,6 +69,51 @@ void Parser::parse_error(string * expected, Token * found)
 				break;}
 		}
 }
+
+void Parser::type_error(Token *where)
+{
+		cout << "Type error occured in: ";
+		switch (where -> get_token_type())
+	 	{
+  			case TOKEN_KEYWORD:{
+				KeywordToken *token_keyword = static_cast<KeywordToken*>(where);
+				cout << *token_keyword -> to_string() << endl;
+	 			break;}
+	 		case TOKEN_PUNC:{
+	 			PuncToken *token_punc = static_cast<PuncToken*>(where); 	
+				cout << *token_punc -> to_string() << endl;
+				break;}
+	 		case TOKEN_RELOP:{
+	 			RelopToken *token_relop = static_cast<RelopToken*>(where);
+				cout << *token_relop -> to_string() << endl;
+	 			break;}
+	 		case TOKEN_ADDOP:{
+	 			AddopToken *token_addop = static_cast<AddopToken*>(where);
+				cout << *token_addop -> to_string() << endl;
+	 			break;}
+	 		case TOKEN_MULOP:{
+	 			MulopToken *token_mulop = static_cast<MulopToken*>(where);
+				cout << *token_mulop -> to_string() << endl;
+	 			break;}
+	 		case TOKEN_ID:{
+	 			IdToken *token_id = static_cast<IdToken*>(where);
+				cout << *token_id -> to_string() << endl;
+	  			break;}
+	 		case TOKEN_NUM:{
+	 			NumToken *token_num = static_cast<NumToken*>(where);
+				cout << *token_num -> to_string() << endl;
+	 			break;}
+	 		case TOKEN_NO_TYPE: {
+	 			break;
+	 		}
+	 		case TOKEN_EOF:{
+	 	 		EofToken *token_eof = static_cast<EofToken*>(where);
+				cout << *token_eof -> to_string() << endl;
+				break;}
+		}
+	cout << "Type error occured in " << where->get
+}
+
 
 bool Parser::done_with_input() 
 {
@@ -505,8 +560,13 @@ bool Parser::parse_arg_list_hat()
 
 bool Parser::parse_identifier_list() 
 {
+	// IDENTIFIER_LIST -> identifier IDENTIFIER_LIST_PRM
+	// Predict(identifier) = {identifier}
+
 	if (word->get_token_type() == TOKEN_ID ) 
 	{
+		stab->install (static_cast<IdToken *>(word)->get_attribute(), current_env, UNKNOWN_T);
+
 		delete word;
 		word = lex->next_token();
 		if (parse_identifier_list_prm()) 
@@ -568,7 +628,7 @@ bool Parser::parse_identifier_list_prm()
 	}
 }
 
-bool Parser::parse_standard_type() 
+bool Parser::parse_standard_type(expr_type &standard_type_type) 
 {
 	if (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_INT) 
@@ -779,7 +839,7 @@ bool Parser::parse_stmt()
 	}
 }
 
-bool Parser::parse_stmt_ass_proc_tail() 
+bool Parser::parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type) 
 {
 	if (word->get_token_type() == TOKEN_PUNC
 		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_ASSIGN) 
@@ -811,7 +871,7 @@ bool Parser::parse_stmt_ass_proc_tail()
 	}
 }
 
-bool Parser::parse_assignment_stmt_tail()
+bool Parser::parse_assignment_stmt_tail(expr_type &assignment_stmt_tail_type)
 {
 	if (word->get_token_type() == TOKEN_PUNC
 		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_ASSIGN) 
@@ -1076,8 +1136,10 @@ bool Parser::parse_expr_list_hat()
 	}
 }
 
-bool Parser::parse_expr() 
+bool Parser::parse_expr(expr_type &the_expr_type) 
 {
+	expr_type simple_expr_type, expr_hat_type;
+		
 	if (word->get_token_type() == TOKEN_ID
 		|| (word->get_token_type() == TOKEN_NUM)
 		|| (word->get_token_type() == TOKEN_PUNC
@@ -1089,10 +1151,23 @@ bool Parser::parse_expr()
 		|| (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_NOT))
 	{
-		if (parse_simple_expr()) 
+		if (parse_simple_expr(simple_expr_type)) 
 		{
-			if (parse_expr_hat()) 
+			if (parse_expr_hat(expr_hat_type)) 
 			{
+				/* semantics actions: calculate expr_type */
+				if (expr_hat_type == NO_T) 
+				{
+					the_expr_type = simple_expr_type;
+
+				} else if (simple_expr_type == INT_T && expr_hat_type == INT_T) 
+				{
+					the_expr_type = BOOL_T;
+				} else 
+				{
+					type_error(word);
+				}
+
 				return true;
 			} else 
 			{
@@ -1112,7 +1187,7 @@ bool Parser::parse_expr()
 	}
 }
 
-bool Parser::parse_expr_hat() 
+bool Parser::parse_expr_hat(expr_type &expr_hat_type) 
 {
 	if (word->get_token_type() == TOKEN_RELOP)
 	{
@@ -1147,7 +1222,7 @@ bool Parser::parse_expr_hat()
 	}
 }
 
-bool Parser::parse_simple_expr() 
+bool Parser::parse_simple_expr(expr_type &simple_expr_type) 
 {
 	if (word->get_token_type() == TOKEN_ID
 		|| (word->get_token_type() == TOKEN_NUM)
@@ -1183,7 +1258,7 @@ bool Parser::parse_simple_expr()
 	}
 }
 
-bool Parser::parse_simple_expr_prm() 
+bool Parser::parse_simple_expr_prm(expr_type &simple_expr_prm_type) 
 {
 	if (word->get_token_type() == TOKEN_ADDOP) 
 	{
@@ -1225,7 +1300,7 @@ bool Parser::parse_simple_expr_prm()
 	}
 }
 
-bool Parser::parse_term() 
+bool Parser::parse_term(expr_type &term_type) 
 {
 	if (word->get_token_type() == TOKEN_ID
 		|| (word->get_token_type() == TOKEN_NUM)
@@ -1260,7 +1335,7 @@ bool Parser::parse_term()
 	}
 }
 
-bool Parser::parse_term_prm() 
+bool Parser::parse_term_prm(expr_type &term_prm_type) 
 {
 	if (word->get_token_type() == TOKEN_MULOP) 
 	{
@@ -1302,7 +1377,7 @@ bool Parser::parse_term_prm()
 	}
 }
 
-bool Parser::parse_factor()
+bool Parser::parse_factor(expr_type &factor_type)
 {
 	if (word->get_token_type() == TOKEN_ID) 
 	{
