@@ -56,6 +56,8 @@ public:
 		 type == UNKNOWN_T to standard_type_type */
 	void update_type (expr_type standard_type_type);
 
+	void update_arg_list (int parm_pos, expr_type standard_type_type);
+
 	/* Find the first identifier in the symbol table with an unknown
 		 type, and set its parameter position. Note that this needs to 
 		 be called before update_type in order to correctly set
@@ -66,7 +68,6 @@ public:
 	// Convert an expr_type to a string - useful for debugging.
 	string *to_string (expr_type t);
 
-	int table_size();
 	private:
 
 	// One symbol table entry

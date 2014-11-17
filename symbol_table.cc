@@ -119,6 +119,20 @@ void Symbol_Table::set_parm_pos (int pos)
   }
 }
 
+void Symbol_Table::update_arg_list (int parm_pos, expr_type standard_type_type)
+{
+  for (int i =0; i < size; i++)
+  {
+    if (table[i].type == UNKNOWN_T)
+    {
+      set_parm_pos (parm_pos);
+      parm_pos++;
+      update_type (standard_type_type);
+    }
+  }
+}
+
+
 void Symbol_Table::error_stab_overflow (string *id, string *env)
 {
   // Probably should be written to cerr.  Will fix in 
@@ -127,11 +141,6 @@ void Symbol_Table::error_stab_overflow (string *id, string *env)
   cout << "Symbol table overflow while installing ";
   cout << *id << " in environment " << *env << endl;
   exit (-1);
-}
-
-int Symbol_Table::table_size()
-{
-  return size;
 }
 
 string *Symbol_Table::to_string (expr_type t)
