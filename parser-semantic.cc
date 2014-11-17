@@ -918,14 +918,16 @@ bool Parser::parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type)
 
 bool Parser::parse_assignment_stmt_tail(expr_type &assignment_stmt_tail_type)
 {
+	expr_type the_expr_type;
 	if (word->get_token_type() == TOKEN_PUNC
 		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_ASSIGN) 
 	{
 		delete word;
 		word = lex->next_token();
 
-		if (parse_expr()) 
+		if (parse_expr(the_expr_type)) 
 		{
+			assignment_stmt_tail_type = the_expr_type;
 			return true;
 		} else 
 		{
@@ -1441,9 +1443,9 @@ bool Parser::parse_term(expr_type &term_type)
 		|| (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_NOT))
 	{
-		if (parse_factor()) 
+		if (parse_factor(factor_type)) 
 		{
-			if (parse_term_prm()) 
+			if (parse_term_prm(term_prm_type)) 
 			{
 				if (term_prm_type == NO_T)
 				{
