@@ -497,6 +497,7 @@ bool Parser::parse_procedure_decl()
 
 bool Parser::parse_arg_list() 
 {
+	expr_type standard_type_type;
 	// ARG_LIST -> IDENTIFIER_LIST : STANDARD_TYPE ARG_LIST_HAT 
 	// Predict {identifier}
 	if (word->get_token_type() == TOKEN_ID) 
@@ -509,8 +510,18 @@ bool Parser::parse_arg_list()
 				delete word;
 				word = lex->next_token();
 
-				if (parse_standard_type()) 
+				if (parse_standard_type(standard_type_type)) 
 				{
+					for (int i = 0; i < stab -> table_size(); i++)
+					{
+						if (stab -> get_type (current_env, i) == UNKNOWN_T)
+						{
+							stab -> set_parm_pos(parm_pos);
+							parm_pos++;
+							stab -> update_type (standard_type_type);
+						}
+					}
+
 					if (parse_arg_list_hat()) 
 					{
 						return true;
@@ -618,6 +629,8 @@ bool Parser::parse_identifier_list_prm()
 
 		if (word->get_token_type() == TOKEN_ID) 
 		{
+			stab -> install (static_cast<IdToken *>(word)->get_attribute(),
+				current_env, UNKNOWN_T);
 			delete word;
 			word = lex->next_token();
 
@@ -655,12 +668,14 @@ bool Parser::parse_standard_type(expr_type &standard_type_type)
 	if (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_INT) 
 	{
+		standard_type_type = INT_T;
 		delete word;
 		word = lex->next_token();
 		return true;
 	} else if (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BOOL)
 	{
+		standard_type_type = BOOL_T;
 		delete word;
 		word = lex->next_token();
 		return true;
@@ -809,6 +824,8 @@ bool Parser::parse_stmt_list_prm()
 
 bool Parser::parse_stmt() 
 {
+	expr_type stmt_ass_proc_tail_type;
+
 	if (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_IF) 
 	{
@@ -841,11 +858,22 @@ bool Parser::parse_stmt()
 		}
 	} else if (word->get_token_type() == TOKEN_ID) 
 	{
+		string *identifier = static_cast<IdToken *>(word)->get_attribute();
+		if (! stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(),
+			current_env)
+			{
+				undeclared_id_error (static_cast<IdToken *>(word)->get_attribute(),
+				current_env );
+			}
 		delete word;
 		word = lex->next_token();
 
-		if (parse_stmt_ass_proc_tail()) 
+		if (parse_stmt_ass_proc_tail(stmt_ass_proc_tail_type)) 
 		{
+			if ( stab -> get_type (identifier, current_env) != stmt_ass_proc_tail_type)
+			{
+				type_error(word);
+			}
 			return true;
 		} else 
 		{
@@ -863,11 +891,13 @@ bool Parser::parse_stmt()
 
 bool Parser::parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type) 
 {
+	expr_type assignment_stmt_tail_type;
 	if (word->get_token_type() == TOKEN_PUNC
 		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_ASSIGN) 
 	{
-		if (parse_assignment_stmt_tail()) 
+		if (parse_assignment_stmt_tail(assignment_stmt_tail_type)) 
 		{
+			stmt_ass_proc_tail_type = assignment_stmt_tail_type;
 			return true;
 		} else 
 		{
@@ -878,6 +908,7 @@ bool Parser::parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type)
 	{
 		if (parse_procedure_call_stmt_tail()) 
 		{
+			assignment_stmt_tail_type = PROCEDURE_T;
 			return true; 
 		} else 
 		{
@@ -920,14 +951,19 @@ bool Parser::parse_assignment_stmt_tail(expr_type &assignment_stmt_tail_type)
 
 bool Parser::parse_if_stmt() 
 {
+	expr_type the_expr_type;
 	if (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_IF) 
 	{
 		delete word;
 		word = lex->next_token();
 
-		if (parse_expr()) 
+		if (parse_expr(the_expr_type)) 
 		{
+			if (the_expr_type != BOOL_T)
+			{
+				type_error(word);
+			}
 			if (word->get_token_type() == TOKEN_KEYWORD
 				&& static_cast<KeywordToken* >(word)->get_attribute() == KW_THEN) 
 			{
@@ -1000,13 +1036,18 @@ bool Parser::parse_if_stmt_hat()
 
 bool Parser::parse_while_stmt() 
 {
+	expr_type the_expr_type;
 	if (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_WHILE) 
 	{
 		delete word;
 		word = lex->next_token();
-		if (parse_expr()) 
+		if (parse_expr(the_expr_type)) 
 		{
+			if (the_expr_type != BOOL_T)
+			{
+				type_error (word);
+			}
 			if (parse_block()) 
 			{
 				return true;
@@ -1030,13 +1071,18 @@ bool Parser::parse_while_stmt()
 
 bool Parser::parse_print_stmt() 
 {
+	expr_type the_expr_type;
 	if (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_PRINT) 
 	{
 		delete word;
 		word = lex->next_token();
-		if (parse_expr()) 
+		if (parse_expr(the_expr_type)) 
 		{
+			if (the_expr_type != INT_T)
+			{
+				type_error (word);
+			}
 			return true; 
 		} else 
 		{
@@ -1059,6 +1105,7 @@ bool Parser::parse_procedure_call_stmt_tail()
 	{
 		delete word;
 		word = lex->next_token();
+		parm_pos = 0;
 		if (parse_expr_list()) 
 		{
 			if (word->get_token_type() == TOKEN_PUNC 
@@ -1091,6 +1138,8 @@ bool Parser::parse_procedure_call_stmt_tail()
 
 bool Parser::parse_expr_list() 
 {
+	expr_type the_expr_type;
+
 	if (word->get_token_type() == TOKEN_ID
 		|| (word->get_token_type() == TOKEN_NUM)
 		|| (word->get_token_type() == TOKEN_PUNC
@@ -1102,8 +1151,14 @@ bool Parser::parse_expr_list()
 		|| (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_NOT))
 	{
-		if (parse_expr()) 
+		if (parse_expr(the_expr_type)) 
 		{
+			if (the_expr_type != stab -> get_type (current_env, parm_pos))
+			{
+				type_error (word);
+			}
+			parm_pos++;
+
 			if (parse_expr_list_hat()) 
 			{
 				return true;
@@ -1211,12 +1266,21 @@ bool Parser::parse_expr(expr_type &the_expr_type)
 
 bool Parser::parse_expr_hat(expr_type &expr_hat_type) 
 {
+	expr_type simple_expr_type;
 	if (word->get_token_type() == TOKEN_RELOP)
 	{
 		delete word;
 		word = lex->next_token();
-		if (parse_simple_expr()) 
+		if (parse_simple_expr(simple_expr_type)) 
 		{
+			if (simple_expr_type == INT_T)
+			{
+				expr_hat_type = INT_T;
+			} else 
+			{
+				type_error (word);
+			}
+
 			return true;
 		} else
 		{
@@ -1233,6 +1297,7 @@ bool Parser::parse_expr_hat(expr_type &expr_hat_type)
 	|| (word->get_token_type() == TOKEN_PUNC
 		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_CLOSE)) 
 	{
+		expr_hat_type = NO_T;
 		return true;
 	} else 
 	{
@@ -1246,6 +1311,9 @@ bool Parser::parse_expr_hat(expr_type &expr_hat_type)
 
 bool Parser::parse_simple_expr(expr_type &simple_expr_type) 
 {
+	expr_type term_type;
+	expr_type simple_expr_prm_type;
+
 	if (word->get_token_type() == TOKEN_ID
 		|| (word->get_token_type() == TOKEN_NUM)
 		|| (word->get_token_type() == TOKEN_PUNC
@@ -1257,10 +1325,20 @@ bool Parser::parse_simple_expr(expr_type &simple_expr_type)
 		|| (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_NOT))
 	{
-		if (parse_term()) 
+		if (parse_term(term_type)) 
 		{
-			if (parse_simple_expr_prm()) 
+			if (parse_simple_expr_prm(simple_expr_prm_type)) 
 			{
+				if (simple_expr_prm_type == NO_T)
+				{
+					simple_expr_type = term_type;
+				} else if (term_type == simple_expr_prm_type)
+				{
+					simple_expr_type = term_type;
+				} else 
+				{
+					type_error (word);
+				}
 				return true;
 			} else 
 			{
@@ -1282,14 +1360,22 @@ bool Parser::parse_simple_expr(expr_type &simple_expr_type)
 
 bool Parser::parse_simple_expr_prm(expr_type &simple_expr_prm_type) 
 {
+	expr_type term_type;
+	expr_type simple_expr_prm_type_two;
+	expr_type addop_type;
+
 	if (word->get_token_type() == TOKEN_ADDOP) 
 	{
 		delete word;
 		word = lex->next_token();
-		if (parse_term()) 
+		if (parse_term(term_type)) 
 		{
-			if (parse_simple_expr_prm()) 
+			if (parse_simple_expr_prm(simple_expr_prm_type_two)) 
 			{
+				if (simple_expr_prm_type_two == NO_T)
+				{
+
+				}
 				return true;
 			} else 
 			{

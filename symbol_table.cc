@@ -129,6 +129,11 @@ void Symbol_Table::error_stab_overflow (string *id, string *env)
   exit (-1);
 }
 
+int Symbol_Table::table_size()
+{
+  return size;
+}
+
 string *Symbol_Table::to_string (expr_type t)
 {
   string *result;

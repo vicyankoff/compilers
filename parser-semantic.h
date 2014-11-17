@@ -95,34 +95,34 @@ class Parser {
       Scanner *lex;
       // The current token the parser is looking at
       Token *word;
-			// The symbol table
-			Symbol_Table * stab;
+	// The symbol table
+	Symbol_Table * stab;
 
-			/* The current environment we are doing semantic analysis in.
-			 * It will be either the main program name or a procedure
-			 * name.
-			 */
-			string *current_env;	
+	/* The current environment we are doing semantic analysis in.
+	 * It will be either the main program name or a procedure
+	 * name.
+	 */
+	string *current_env;	
 
-			// The main environment. Always the name of the main program
-			string *main_env;
+	// The main environment. Always the name of the main program
+	string *main_env;
 
-			/* Used in semantic analysis to determine which position a paramenter
-			 * is in during the parsing of actual parameters and formal parameters
-			 */
-			int parm_pos;
+	/* Used in semantic analysis to determine which position a paramenter
+	 * is in during the parsing of actual parameters and formal parameters
+	 */
+	int parm_pos;
 
       string * expected;
 
       void parse_error (string *expected, Token *found);
 
-			// Called when a type error occurs. "where" is the current token
-			void type_error(Token *where);
+	// Called when a type error occurs. "where" is the current token
+	void type_error(Token *where);
 
-			/* Called when an undeclared identifier is referenced in a statement
-			 * Print the identifier and the current environment
-			 */
-			void undeclared_id_error(string *id, string *env);
+	/* Called when an undeclared identifier is referenced in a statement
+	 * Print the identifier and the current environment
+	 */
+	void undeclared_id_error(string *id, string *env);
 };
 
 #endif

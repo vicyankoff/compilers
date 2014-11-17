@@ -15,12 +15,12 @@ using namespace std;
 	 of a non-terminal
 */
 typedef enum expression_type {INT_T					= 700, // int
-															BOOL_T  			= 701, // bool
-															PROGRAM_T			= 702, // program name
-															PROCEDURE_T		= 703, // procedure name
-															UNKNOWN_T 		= 704, // type is currently unknown
-															NO_T					= 705, // no type associated with this attribute
-															GARBAGE_T			= 799} expr_type; //initial value
+		BOOL_T  			= 701, // bool
+		PROCEDURE_T		= 703, // procedure name
+		PROGRAM_T			= 702, // program name
+		UNKNOWN_T 		= 704, // type is currently unknown
+		NO_T					= 705, // no type associated with this attribute
+		GARBAGE_T			= 799} expr_type; //initial value
 
 class Symbol_Table {
 
@@ -66,6 +66,7 @@ public:
 	// Convert an expr_type to a string - useful for debugging.
 	string *to_string (expr_type t);
 
+	int table_size();
 	private:
 
 	// One symbol table entry
