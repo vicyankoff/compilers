@@ -122,7 +122,7 @@ private:
 	/* Called when an undeclared identifier is referenced in a statement
 	 * Print the identifier and the current environment
 	 */
-	 void undeclared_id_error(string *id, string *env);
+	 void undeclared_id_error(string *id, string *env, string * function_call);
 	};
 
 #endif

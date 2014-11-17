@@ -114,10 +114,12 @@ void Parser::type_error(Token *where)
 	exit(-1);
 }
 
-void Parser::undeclared_id_error(string *id, string *env)
+void Parser::undeclared_id_error(string *id, string *env, string * function_call)
 {
+		stab -> dump_table();
 		cout << "Undeclared error occurs with id: " << *id <<endl;
 		cout << "Current environment: " << *env << endl;
+		cout << "Function called: " << *function_call << endl;
 }
 
 bool Parser::done_with_input() 
@@ -143,11 +145,11 @@ bool Parser::parse_program()
 		// Match identifier
 		if (word->get_token_type() == TOKEN_ID)
 		{
-
+			string * external_env = new string ("_EXTERNAL");
 			stab->install (static_cast<IdToken *>(word)->get_attribute(), 
-			"_EXTERNAL", PROGRAM_T);
-			current_env = new string (static_cast<IdToken *>(word)->get_attribute());
-			main_env = new string (static_cast<IdToken *>(word)->get_attribute());
+			external_env, PROGRAM_T);
+			current_env = static_cast<IdToken *>(word)->get_attribute();
+			main_env = static_cast<IdToken *>(word)->get_attribute();
 
 			// ADVANCE
 			delete word;
@@ -421,7 +423,7 @@ bool Parser::parse_procedure_decl()
 
 			stab->install (static_cast<IdToken *>(word)->get_attribute(),
 			current_env, PROCEDURE_T);
-			*current_env = "identifier";
+			current_env = static_cast<IdToken *>(word)->get_attribute();
 			parm_pos = 0;
 
 			delete word;
@@ -447,7 +449,7 @@ bool Parser::parse_procedure_decl()
 			
 							if (parse_block()) 
 							{
-								*current_env = "main_env";
+								current_env = main_env;
 								return true;
 							} else 
 							{
@@ -852,10 +854,10 @@ bool Parser::parse_stmt()
 	{
 		string *identifier = static_cast<IdToken *>(word)->get_attribute();
 		if (! stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(),
-			current_env)
+			current_env))
 			{
 				undeclared_id_error (static_cast<IdToken *>(word)->get_attribute(),
-				current_env );
+				current_env, new string ("parse_stmt()") );
 			}
 		delete word;
 		word = lex->next_token();
@@ -1367,9 +1369,6 @@ bool Parser::parse_simple_expr_prm(expr_type &simple_expr_prm_type)
 		} else if (static_cast<AddopToken *>(word)->get_attribute() == ADDOP_OR)
 		{
 			addop_type = BOOL_T;
-		} else 
-		{
-			addop_type = -1;
 		}
 		delete word;
 		word = lex->next_token();
@@ -1491,10 +1490,7 @@ bool Parser::parse_term_prm(expr_type &term_prm_type)
 		} else if (static_cast<MulopToken *>(word)->get_attribute() == MULOP_AND)
 		{
 			mulop_type = BOOL_T;
-		} else 
-		{
-			mulop_type = -1;
-		}
+		} 
 		delete word;
 		word = lex->next_token();
 		if (parse_factor(factor_type)) 
@@ -1557,7 +1553,7 @@ bool Parser::parse_factor(expr_type &factor_type)
 			factor_type = stab -> get_type (static_cast<IdToken *>(word)->get_attribute(), current_env);
 		} else 
 		{
-			undeclared_id_error (static_cast<IdToken *>(word)->get_attribute(), current_env);
+			undeclared_id_error (static_cast<IdToken *>(word)->get_attribute(), current_env, new string ("parse_factor()"));
 		}
 		delete word;
 		word = lex->next_token();

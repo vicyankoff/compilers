@@ -68,6 +68,8 @@ public:
 	// Convert an expr_type to a string - useful for debugging.
 	string *to_string (expr_type t);
 
+	void dump_table();
+	
 	private:
 
 	// One symbol table entry

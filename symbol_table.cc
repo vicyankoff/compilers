@@ -143,6 +143,21 @@ void Symbol_Table::error_stab_overflow (string *id, string *env)
   exit (-1);
 }
 
+void Symbol_Table::dump_table()
+{
+  for (int i =0; i < size; i++)
+  {
+    for(int i =0; i < size; i++) 
+    {
+      cout << *table[i].id << endl;
+      cout << *table[i].env << endl;
+      cout << table[i].position << endl;
+      cout << *to_string(table[i].type) << endl;
+      cout << " " << endl;
+    }
+  }
+}
+
 string *Symbol_Table::to_string (expr_type t)
 {
   string *result;
