@@ -1,0 +1,10 @@
+program viktor;
+	a: int;
+	b: int;
+	c: int;
+begin
+	if a + c then
+	begin
+		print b;
+	end;
+end;

@@ -70,7 +70,7 @@ void Parser::parse_error(string * expected, Token * found)
 		}
 }
 
-void Parser::type_error(Token *where)
+void Parser::type_error(Token *where, string * message)
 {
 		cout << "Type error occured in: ";
 		switch (where -> get_token_type())
@@ -111,15 +111,18 @@ void Parser::type_error(Token *where)
 				cout << *token_eof -> to_string() << endl;
 				break;}
 		}
+		cout << *message << endl;
 	exit(-1);
 }
 
-void Parser::undeclared_id_error(string *id, string *env, string * function_call)
+void Parser::undeclared_id_error(string *id, string *proc_env, string *main_env, string * function_call)
 {
 		stab -> dump_table();
 		cout << "Undeclared error occurs with id: " << *id <<endl;
-		cout << "Current environment: " << *env << endl;
+		cout << "Current environment: " << *proc_env << endl;
+		cout << "Main environment: " << *main_env << endl;
 		cout << "Function called: " << *function_call << endl;
+		exit(-1);
 }
 
 void Parser::variable_already_declared_error( string * variable)
@@ -871,11 +874,12 @@ bool Parser::parse_stmt()
 	} else if (word->get_token_type() == TOKEN_ID) 
 	{
 		string *identifier = static_cast<IdToken *>(word)->get_attribute();
-		if (! stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(),
-			current_env))
+		if (!stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(),
+			current_env) && !stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(),
+			main_env))
 			{
 				undeclared_id_error (static_cast<IdToken *>(word)->get_attribute(),
-				current_env, new string ("parse_stmt()") );
+				current_env, main_env, new string ("parse_stmt()") );
 			}
 		delete word;
 		word = lex->next_token();
@@ -884,7 +888,7 @@ bool Parser::parse_stmt()
 		{
 			if ( stab -> get_type (identifier, current_env) != stmt_ass_proc_tail_type)
 			{
-				type_error(word);
+				type_error(word, new string ("Incompatible types in assignment"));
 			}
 			return true;
 		} else 
@@ -976,7 +980,7 @@ bool Parser::parse_if_stmt()
 		{
 			if (the_expr_type != BOOL_T)
 			{
-				type_error(word);
+				type_error(word, new string ("Expression in IF statement must be bool"));
 			}
 			if (word->get_token_type() == TOKEN_KEYWORD
 				&& static_cast<KeywordToken* >(word)->get_attribute() == KW_THEN) 
@@ -1060,7 +1064,7 @@ bool Parser::parse_while_stmt()
 		{
 			if (the_expr_type != BOOL_T)
 			{
-				type_error (word);
+				type_error (word, new string ("Expression in WHILE statement must be a bool"));
 			}
 			if (parse_block()) 
 			{
@@ -1095,7 +1099,7 @@ bool Parser::parse_print_stmt()
 		{
 			if (the_expr_type != INT_T)
 			{
-				type_error (word);
+				type_error (word, new string ("You can only print integer variables"));
 			}
 			return true; 
 		} else 
@@ -1169,7 +1173,7 @@ bool Parser::parse_expr_list()
 		{
 			if (the_expr_type != stab -> get_type (current_env, parm_pos))
 			{
-				type_error (word);
+				type_error (word, new string ("Incompatible types in expression"));
 			}
 			parm_pos++;
 
@@ -1256,7 +1260,7 @@ bool Parser::parse_expr(expr_type &the_expr_type)
 					the_expr_type = BOOL_T;
 				} else 
 				{
-					type_error(word);
+					type_error(word, new string ("Incompatible types in expression"));
 				}
 
 				return true;
@@ -1292,7 +1296,7 @@ bool Parser::parse_expr_hat(expr_type &expr_hat_type)
 				expr_hat_type = INT_T;
 			} else 
 			{
-				type_error (word);
+				type_error (word, new string ("Incompatible types in expression"));
 			}
 
 			return true;
@@ -1351,7 +1355,7 @@ bool Parser::parse_simple_expr(expr_type &simple_expr_type)
 					simple_expr_type = term_type;
 				} else 
 				{
-					type_error (word);
+					type_error (word, new string ("Incompatible types in expression"));
 				}
 				return true;
 			} else 
@@ -1401,7 +1405,7 @@ bool Parser::parse_simple_expr_prm(expr_type &simple_expr_prm_type)
 						simple_expr_prm_type = addop_type;
 					} else
 					{
-						type_error (word);
+						type_error (word, new string ("Incompatible types in expression"));
 					}
 				} else if (addop_type == term_type
 					&& term_type == simple_expr_prm_type_two)
@@ -1409,7 +1413,7 @@ bool Parser::parse_simple_expr_prm(expr_type &simple_expr_prm_type)
 					simple_expr_prm_type = addop_type;
 				} else
 				{
-					type_error (word);
+					type_error (word, new string ("Incompatible types in expression"));
 				}
 				return true;
 			} else 
@@ -1472,7 +1476,7 @@ bool Parser::parse_term(expr_type &term_type)
 					term_type = factor_type;
 				} else 
 				{
-					type_error (word);
+					type_error (word, new string ("Incompatible types in expression"));
 				}
 
 				return true;
@@ -1523,7 +1527,7 @@ bool Parser::parse_term_prm(expr_type &term_prm_type)
 					term_prm_type = mulop_type;
 				} else 
 				{
-					type_error (word);
+					type_error (word, new string ("Incompatible types in expression"));
 				}
 
 				return true;
@@ -1569,9 +1573,13 @@ bool Parser::parse_factor(expr_type &factor_type)
 		if (stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(), current_env))
 		{
 			factor_type = stab -> get_type (static_cast<IdToken *>(word)->get_attribute(), current_env);
+		} else if (stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(), main_env))
+		{
+			factor_type = stab -> get_type (static_cast<IdToken *>(word)->get_attribute(), main_env);
+
 		} else 
 		{
-			undeclared_id_error (static_cast<IdToken *>(word)->get_attribute(), current_env, new string ("parse_factor()"));
+			undeclared_id_error (static_cast<IdToken *>(word)->get_attribute(), current_env, main_env, new string ("parse_factor()"));
 		}
 		delete word;
 		word = lex->next_token();
@@ -1640,7 +1648,7 @@ bool Parser::parse_factor(expr_type &factor_type)
 					factor_type = BOOL_T;
 				} else 
 				{
-					type_error (word);
+					type_error (word, new string ("Incompatible types in expression"));
 				}
 				return true;
 			} else 
@@ -1669,7 +1677,7 @@ bool Parser::parse_factor(expr_type &factor_type)
 					factor_type = INT_T;
 				} else 
 				{
-					type_error (word);
+					type_error (word, new string ("Incompatible types in expression"));
 				}
 				return true;
 			} else 

@@ -56,7 +56,7 @@ public:
 		 type == UNKNOWN_T to standard_type_type */
 	void update_type (expr_type standard_type_type);
 
-	void update_arg_list (int parm_pos, expr_type standard_type_type);
+	void update_arg_list (int &parm_pos, expr_type standard_type_type);
 
 	/* Find the first identifier in the symbol table with an unknown
 		 type, and set its parameter position. Note that this needs to 
@@ -71,6 +71,8 @@ public:
 	// Print the contents of the table
 	void dump_table();
 	
+	int get_table_size();
+	
 	private:
 
 	// One symbol table entry
@@ -82,6 +84,7 @@ public:
 	} STAB_ENTRY;
 
 	STAB_ENTRY table[MAX_SYMBOLS];
+
 
 	int size;
 	void error_stab_overflow (string *id, string *env);

@@ -74,7 +74,7 @@ expr_type Symbol_Table::get_type (string *id, string *env)
   // garbage garbage type if (*id, *env) are not in the table.
   for (int i = 0; i < size; i++) {
     if (table[i].id->compare(*id) == 0 &&
-	table[i].env->compare(*env) == 0) {
+	   table[i].env->compare(*env) == 0) {
       return table[i].type;
     }
   }
@@ -117,19 +117,23 @@ void Symbol_Table::set_parm_pos (int pos)
   }
 }
 
-void Symbol_Table::update_arg_list (int parm_pos, expr_type standard_type_type)
+void Symbol_Table::update_arg_list (int &parm_pos, expr_type standard_type_type)
 {
   for (int i =0; i < size; i++)
   {
     if (table[i].type == UNKNOWN_T)
     {
-      set_parm_pos (parm_pos);
+      table[i].position = parm_pos;
       parm_pos++;
-      update_type (standard_type_type);
+      table[i].type = standard_type_type;
     }
   }
 }
 
+int Symbol_Table::get_table_size()
+{
+  return size;
+}
 
 void Symbol_Table::error_stab_overflow (string *id, string *env)
 {

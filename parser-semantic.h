@@ -120,13 +120,12 @@ private:
 	 void parse_error (string *expected, Token *found);
 
 	// Called when a type error occurs. "where" is the current token
-	 void type_error(Token *where);
+	 void type_error(Token *where, string *message);
 
 	/* Called when an undeclared identifier is referenced in a statement
 	 * Print the identifier and the current environment
 	 */
-	 void undeclared_id_error(string *id, string *env, string * function_call);
+	 void undeclared_id_error(string *id, string *proc_env, string *main_env, string * function_call);
 	};
 
 #endif
-
