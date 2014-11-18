@@ -3,7 +3,7 @@ program viktor;
 
 	procedure something (a,a,c,d: int; a,b,c,d: bool)
 	begin
-		print a;
+		print z;
 	end;
 begin
 	print viktor;

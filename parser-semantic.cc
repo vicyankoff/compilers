@@ -430,10 +430,15 @@ bool Parser::parse_procedure_decl()
 		if (word->get_token_type() == TOKEN_ID) 
 		{
 
-			stab->install (static_cast<IdToken *>(word)->get_attribute(),
-			current_env, PROCEDURE_T);
-			current_env = static_cast<IdToken *>(word)->get_attribute();
-			parm_pos = 0;
+			if ( stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(),current_env))
+			{
+				variable_already_declared_error (static_cast<IdToken *>(word)->get_attribute());
+			} else 
+			{
+				stab->install (static_cast<IdToken *>(word)->get_attribute(),current_env, PROCEDURE_T);
+				current_env = static_cast<IdToken *>(word)->get_attribute();
+				parm_pos = 0;
+			}
 
 			delete word;
 			word = lex->next_token();
