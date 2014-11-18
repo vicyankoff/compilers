@@ -68,6 +68,7 @@ public:
 	// Convert an expr_type to a string - useful for debugging.
 	string *to_string (expr_type t);
 
+	// Print the contents of the table
 	void dump_table();
 	
 	private:

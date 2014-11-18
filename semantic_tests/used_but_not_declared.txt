@@ -1,0 +1,5 @@
+program viktor;
+	viktor: int;
+begin
+	print petar;
+end;

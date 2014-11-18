@@ -112,6 +112,9 @@ private:
 	 */
 	 int parm_pos;
 
+
+	 void variable_already_declared_error(string * variable);
+
 	 string * expected;
 
 	 void parse_error (string *expected, Token *found);

@@ -27,7 +27,6 @@ Symbol_Table::~Symbol_Table()
 
 }
 
-
 void Symbol_Table::install (string *id, string *env, 
 			    expr_type t)
 {
@@ -68,7 +67,6 @@ bool Symbol_Table::is_decl (string *id, string *env)
   }
   return false;
 }
-
 
 expr_type Symbol_Table::get_type (string *id, string *env)
 {

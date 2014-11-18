@@ -122,6 +122,12 @@ void Parser::undeclared_id_error(string *id, string *env, string * function_call
 		cout << "Function called: " << *function_call << endl;
 }
 
+void Parser::variable_already_declared_error( string * variable)
+{
+	cout << "Variable Already Declared Error: the variable '" << *variable << "' has already been declared" << endl;
+	exit (-1);
+}
+
 bool Parser::done_with_input() 
 {
 	return word->get_token_type() == TOKEN_EOF;
@@ -592,7 +598,13 @@ bool Parser::parse_identifier_list()
 
 	if (word->get_token_type() == TOKEN_ID ) 
 	{
-		stab->install (static_cast<IdToken *>(word)->get_attribute(), current_env, UNKNOWN_T);
+		if ( !stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(), current_env))
+		{
+			stab->install (static_cast<IdToken *>(word)->get_attribute(), current_env, UNKNOWN_T);
+		} else 
+		{
+			variable_already_declared_error( static_cast<IdToken *>(word)->get_attribute());
+		}
 
 		delete word;
 		word = lex->next_token();
@@ -623,8 +635,14 @@ bool Parser::parse_identifier_list_prm()
 
 		if (word->get_token_type() == TOKEN_ID) 
 		{
-			stab -> install (static_cast<IdToken *>(word)->get_attribute(),
+			if ( !stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(), current_env))
+			{
+				stab -> install (static_cast<IdToken *>(word)->get_attribute(),
 				current_env, UNKNOWN_T);
+			} else 
+			{
+				variable_already_declared_error(static_cast<IdToken *>(word)->get_attribute());
+			}
 			delete word;
 			word = lex->next_token();
 
