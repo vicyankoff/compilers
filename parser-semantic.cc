@@ -13,6 +13,7 @@ Parser::Parser(Scanner *s)
 	// Init the environments to null
 	current_env = NULL;
 	main_env = NULL;
+	proc_call_env = NULL;
 	parm_pos = -1;
 }
 
@@ -112,6 +113,8 @@ void Parser::type_error(Token *where, string * message)
 				break;}
 		}
 		cout << *message << endl;
+		// stab -> dump_table();
+		// cout << "Calling procedure " << *proc_call_env << endl;
 	exit(-1);
 }
 
@@ -879,6 +882,7 @@ bool Parser::parse_stmt()
 	} else if (word->get_token_type() == TOKEN_ID) 
 	{
 		string *identifier = static_cast<IdToken *>(word)->get_attribute();
+		proc_call_env = static_cast<IdToken *>(word)->get_attribute();
 		if (!stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(),
 			current_env) && !stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(),
 			main_env))
@@ -893,7 +897,7 @@ bool Parser::parse_stmt()
 		{
 			if ( stab -> get_type (identifier, current_env) != stmt_ass_proc_tail_type)
 			{
-				type_error(word, new string ("Incompatible types in assignment"));
+				type_error(word, new string ("Incompatible types in assignment. Method: parse_stmt()"));
 			}
 			return true;
 		} else 
@@ -929,7 +933,7 @@ bool Parser::parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type)
 	{
 		if (parse_procedure_call_stmt_tail()) 
 		{
-			assignment_stmt_tail_type = PROCEDURE_T;
+			stmt_ass_proc_tail_type = PROCEDURE_T;
 			return true; 
 		} else 
 		{
@@ -1176,9 +1180,10 @@ bool Parser::parse_expr_list()
 	{
 		if (parse_expr(the_expr_type)) 
 		{
-			if (the_expr_type != stab -> get_type (current_env, parm_pos))
+			if (the_expr_type != stab -> get_type (proc_call_env, parm_pos))
 			{
-				type_error (word, new string ("Incompatible types in expression"));
+				type_error (word, new string ("Incompatible types in expression. Method: parse_expr_list()"));
+				cout << "Position: " << parm_pos << endl;
 			}
 			parm_pos++;
 
@@ -1265,7 +1270,7 @@ bool Parser::parse_expr(expr_type &the_expr_type)
 					the_expr_type = BOOL_T;
 				} else 
 				{
-					type_error(word, new string ("Incompatible types in expression"));
+					type_error(word, new string ("Incompatible types in expression. Method parse_expr()"));
 				}
 
 				return true;
@@ -1301,7 +1306,7 @@ bool Parser::parse_expr_hat(expr_type &expr_hat_type)
 				expr_hat_type = INT_T;
 			} else 
 			{
-				type_error (word, new string ("Incompatible types in expression"));
+				type_error (word, new string ("Incompatible types in expression. Method: parse_expr_hat()"));
 			}
 
 			return true;
@@ -1360,7 +1365,7 @@ bool Parser::parse_simple_expr(expr_type &simple_expr_type)
 					simple_expr_type = term_type;
 				} else 
 				{
-					type_error (word, new string ("Incompatible types in expression"));
+					type_error (word, new string ("Incompatible types in expression. Method: parse_simple_expr()"));
 				}
 				return true;
 			} else 

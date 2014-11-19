@@ -107,6 +107,7 @@ private:
 	// The main environment. Always the name of the main program
 	 string *main_env;
 
+	 string * proc_call_env;
 	/* Used in semantic analysis to determine which position a paramenter
 	 * is in during the parsing of actual parameters and formal parameters
 	 */
