@@ -6,11 +6,11 @@ program viktor;
 		print a;
 	end;
 
-	procedure viktor(a,b: int)
+	procedure petar(a,b: int)
 	begin
 		print a;
 	end;
 
 begin
-	print a;
+	print k;
 end;
