@@ -118,7 +118,7 @@ void Parser::type_error(Token *where, string * message)
 
 void Parser::undeclared_id_error(string *id, string *proc_env, string *main_env, string * function_call)
 {
-?		cout << "Undeclared error occurs with id: " << *id <<endl;
+		cout << "Undeclared error occurs with id: " << *id <<endl;
 		cout << "Current environment: " << *proc_env << endl;
 		cout << "Main environment: " << *main_env << endl;
 		cout << "Function called: " << *function_call << endl;
