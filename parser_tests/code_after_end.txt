@@ -1,6 +1,0 @@
-program viktor ;
-begin
-print viktor ;
-end ;
-
-this is extra code

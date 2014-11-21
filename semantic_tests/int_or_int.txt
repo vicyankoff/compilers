@@ -1,7 +1,0 @@
-program viktor;
-	a: int;
-	b: int;
-	c: bool;
-begin
-	c:= a or b;
-end;

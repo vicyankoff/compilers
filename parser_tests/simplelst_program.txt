@@ -1,4 +1,0 @@
-program viktor ;
-begin
-print viktor ;
-end ;

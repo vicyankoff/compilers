@@ -1,9 +1,0 @@
-#Procedure with arguments but not variables
-program viktor ;
-	procedure a(a,b,c,d: int; x,y,z: bool)
-	begin
-		print viktor;
-	end;
-begin
-print viktor ;
-end ;

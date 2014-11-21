@@ -1,9 +1,0 @@
-program viktor ;
-	a: int;
-	b: bool;
-	c,d,e,f,g: int;
-	h,i,j,k: bool;
-	fifteen bool;
-begin
-print viktor ;
-end ;
