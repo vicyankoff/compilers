@@ -113,15 +113,12 @@ void Parser::type_error(Token *where, string * message)
 				break;}
 		}
 		cout << *message << endl;
-		// stab -> dump_table();
-		// cout << "Calling procedure " << *proc_call_env << endl;
 	exit(-1);
 }
 
 void Parser::undeclared_id_error(string *id, string *proc_env, string *main_env, string * function_call)
 {
-		stab -> dump_table();
-		cout << "Undeclared error occurs with id: " << *id <<endl;
+?		cout << "Undeclared error occurs with id: " << *id <<endl;
 		cout << "Current environment: " << *proc_env << endl;
 		cout << "Main environment: " << *main_env << endl;
 		cout << "Function called: " << *function_call << endl;
