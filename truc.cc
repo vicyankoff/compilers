@@ -14,13 +14,13 @@ int main(int argc, char *argv[])
 	{
 		if (!parser->done_with_input())
 		{
-			cout << "Input after the end of program" << endl;
+			cout << "Syntax Error! Input after the end of program" << endl;
 		} else
 		{
 			cout << "The parse has succeeded" << endl;
 		} 
 	} else 
 	{
-		cout << "The parse has a syntax error" << endl;
+		cout << "Syntax Error" << endl;
 	}
 }
