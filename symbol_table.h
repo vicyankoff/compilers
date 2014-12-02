@@ -95,5 +95,5 @@ public:
 	void error_stab_not_found (string *id, string *env);
 };
 
-#endif;
+#endif
 

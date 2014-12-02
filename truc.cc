@@ -3,6 +3,9 @@
 #include <iostream>
 using namespace std;
 
+/* This is a compiler for a simple programming language called TruPL
+   by Viktor Jankov */
+
 int main(int argc, char *argv[]) 
 {
 	Scanner *scanner = new Scanner(argv[1]);
