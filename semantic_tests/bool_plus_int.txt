@@ -1,0 +1,7 @@
+program viktor;
+	a: int;
+	b: bool;
+	c: bool;
+begin
+	c:= a + b;
+end;

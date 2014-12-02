@@ -1,0 +1,10 @@
+program viktor;
+	viktor: int;
+
+	procedure something (a,a,c,d: int; a,b,c,d: bool)
+	begin
+		print z;
+	end;
+begin
+	print viktor;
+end;

@@ -1,0 +1,11 @@
+program viktor;
+	a:int;
+	b:int;
+	k:int;
+	procedure petar (b,d,e: int)
+	begin
+		e:= b + d;
+	end;
+begin
+	print k;
+end;
