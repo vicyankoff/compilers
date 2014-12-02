@@ -1,0 +1,10 @@
+program viktor;
+	a: int;
+	b: int;
+	c: int;
+begin
+	 while a * c
+	 begin
+	 	print b;
+	 end;
+end;

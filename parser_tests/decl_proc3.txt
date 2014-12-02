@@ -1,0 +1,9 @@
+#Procedure with arguments but not variables
+program viktor ;
+	procedure a(a: int; b: bool)
+	begin
+		print viktor;
+	end;
+begin
+print viktor ;
+end ;

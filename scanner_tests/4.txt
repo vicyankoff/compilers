@@ -1,0 +1,12 @@
+thistestcasecontainseverycategoryoflexeme
+program procedure int bool begin end if then else while print not
+;:,:=()
+=<>>=<<=>
++-or
+*/and
+programlookslikeakeyword
+integer
+andor
+orand
+0
+123456789

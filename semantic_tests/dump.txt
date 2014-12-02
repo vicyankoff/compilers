@@ -1,0 +1,9 @@
+program viktor;
+	a:int;
+	procedure petar(a,b,c: int; d,e,f: bool)
+	begin
+		print k;
+	end;
+begin
+	print a;
+end;

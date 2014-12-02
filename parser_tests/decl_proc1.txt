@@ -1,0 +1,9 @@
+#Procedure with not arguments and not variables
+program viktor ;
+	procedure a()
+	begin
+		print viktor;
+	end;
+begin
+print viktor ;
+end ;

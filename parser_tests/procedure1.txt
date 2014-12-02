@@ -1,0 +1,18 @@
+program viktor ;
+	
+	a,b,c: int;
+	viktor, petar, nikola: bool;
+
+	procedure zasto(petar: int; vladimir: bool)
+		a:int;
+	begin
+		print something;
+	end;
+
+begin
+	a:= not petar;
+
+	zasto(2+3, x + 3, x > 5);
+
+
+end ;

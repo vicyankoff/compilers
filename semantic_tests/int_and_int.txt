@@ -1,0 +1,7 @@
+program viktor;
+	a: int;
+	b: int;
+	c: bool;
+begin
+	c:= a and b;
+end;
