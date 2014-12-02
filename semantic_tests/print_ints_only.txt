@@ -1,5 +1,0 @@
-program viktor;
-	a: bool;
-begin
-	print a;
-end;

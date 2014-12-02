@@ -1,7 +1,0 @@
-program viktor;
-	a: int;
-	a: bool;
-	c: int;
-begin
-	print c;
-end;

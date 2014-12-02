@@ -1,5 +1,0 @@
-program viktor ;
-begin
-	b:= 1 = 0;
-	print viktor;
-end ;
