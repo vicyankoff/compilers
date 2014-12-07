@@ -22,17 +22,17 @@ symbol_table.o: symbol_table.h symbol_table.cc
 	g++ -w -c symbol_table.cc
 register.o: register.h register.cc
 	g++ -w -c register.cc
-register_allocator.o: register_allocator.h register_allocator.cc
-	g++ -w -c register_allocator.cc
-emitter.o: emitter.h emitter.cc
-	g++ -w -c emitter.cc
+register_allocator.o: register_allocator.h register_allocator.cc register.h emitter.h symbol_table.h
+	g++ -w -c register_allocator.cc register.cc emitter.cc symbol_table.cc
+emitter.o: emitter.h emitter.cc register.h
+	g++ -w -c emitter.cc register.cc
 scanner.o: scanner.cc scanner.h token.h	keywordtoken.h punctoken.h reloptoken.h addoptoken.h muloptoken.h idtoken.h numtoken.h eoftoken.h buffer.h
 	g++ -w -c scanner.cc token.cc keywordtoken.cc punctoken.cc reloptoken.cc addoptoken.cc muloptoken.cc idtoken.cc	numtoken.cc eoftoken.cc buffer.cc
 parser-cogen.o: parser-cogen.cc parser-cogen.h token.h keywordtoken.h punctoken.h reloptoken.h addoptoken.h muloptoken.h idtoken.h numtoken.h eoftoken.h scanner.h symbol_table.h register.h register_allocator.h emitter.h
 	g++ -w -c parser-cogen.cc token.cc keywordtoken.cc punctoken.cc reloptoken.cc addoptoken.cc muloptoken.cc idtoken.cc numtoken.cc eoftoken.cc scanner.cc symbol_table.cc register.cc register_allocator.cc emitter.cc
 truc.o: parser-cogen.h scanner.h truc.cc
 	g++ -w -c truc.cc
-truc: token.o keywordtoken.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser-cogen.o truc.o symbol_table.o
-	g++ -g -w -o truc truc.cc keywordtoken.o token.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser-cogen.o symbol_table.o	
+truc: token.o keywordtoken.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser-cogen.o truc.o symbol_table.o register.o register_allocator.o emitter.o
+	g++ -g -w -o truc truc.cc keywordtoken.o token.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser-cogen.o symbol_table.o register.o register_allocator.o emitter.o
 clean:
 	rm *.o
