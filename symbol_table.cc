@@ -37,8 +37,6 @@ void Symbol_Table::install (string *id, string *env,
   table[size].id = new string (*id);
   table[size].env = new string (*env);
   table[size].type = t;
-  cout << "ID: " << *table[size].id << " ENV: " << *table[size].env <<
-  " Type: " << *to_string(table[size].type) << endl;
   size++;
 }
 
@@ -54,8 +52,6 @@ void Symbol_Table::install_parm (string *id, string *env,
   table[size].env = new string (*env);
   table[size].type = t;
   table[size].position = pos;
-  cout << "ID: " << *table[size].id << " ENV: " << *table[size].env <<
-  " Type: " << *to_string(table[size].type) << " Position: " << table[size].position << endl;
   size++;
 }
 
@@ -105,8 +101,6 @@ void Symbol_Table::update_type (expr_type standard_type_type)
   for (int i = 0; i < size; i++) {
     if (table[i].type == UNKNOWN_T) {
       table[i].type = standard_type_type;
-      cout << "ID: " << *table[i].id << " ENV: " << *table[i].env <<
-      " Type: " << *to_string(table[i].type) << " Position: " << table[i].position << endl;
     }
   }
 }
@@ -117,8 +111,6 @@ void Symbol_Table::set_parm_pos (int pos)
   for (int i = 0; i < size; i++) {
     if (table[i].type == UNKNOWN_T) {
       table[i].position = pos;
-      cout << "ID: " << *table[i].id << " ENV: " << *table[i].env <<
-      " Type: " << *to_string(table[i].type) << " Position: " << table[i].position << endl;
       return;
     }
   }
@@ -133,8 +125,6 @@ void Symbol_Table::update_arg_list (int &parm_pos, expr_type standard_type_type)
       table[i].position = parm_pos;
       parm_pos++;
       table[i].type = standard_type_type;
-      cout << "ID: " << *table[i].id << " ENV: " << *table[i].env <<
-      " Type: " << *to_string(table[i].type) << " Position: " << table[i].position << endl;
     }
   }
 }

@@ -12,6 +12,9 @@
 #include "eoftoken.h"
 #include "scanner.h"
 #include "symbol_table.h"
+#include "register.h"
+#include "register_allocator.h"
+#include "emitter.h"
 
 #include <iostream>
 

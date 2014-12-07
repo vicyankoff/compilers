@@ -20,13 +20,19 @@ buffer.o: buffer.h buffer.cc
 	g++ -w -c buffer.cc
 symbol_table.o: symbol_table.h symbol_table.cc
 	g++ -w -c symbol_table.cc
+register.o: register.h register.cc
+	g++ -w -c register.cc
+register_allocator.o: register_allocator.h register_allocator.cc
+	g++ -w -c register_allocator.cc
+emitter.o: emitter.h emitter.cc
+	g++ -w -c emitter.cc
 scanner.o: scanner.cc scanner.h token.h	keywordtoken.h punctoken.h reloptoken.h addoptoken.h muloptoken.h idtoken.h numtoken.h eoftoken.h buffer.h
-	g++ -w -c scanner.cc token.cc keywordtoken.cc punctoken.cc reloptoken.cc addoptoken.cc muloptoken.cc idtoken.cc numtoken.cc eoftoken.cc buffer.cc
-parser-semantic.o: parser-semantic.cc parser-semantic.h token.h keywordtoken.h punctoken.h reloptoken.h addoptoken.h muloptoken.h idtoken.h numtoken.h eoftoken.h scanner.h symbol_table.h
-	g++ -w -c parser-semantic.cc token.cc keywordtoken.cc punctoken.cc reloptoken.cc addoptoken.cc muloptoken.cc idtoken.cc numtoken.cc eoftoken.cc scanner.cc symbol_table.cc
-truc.o: parser-semantic.h scanner.h truc.cc
+	g++ -w -c scanner.cc token.cc keywordtoken.cc punctoken.cc reloptoken.cc addoptoken.cc muloptoken.cc idtoken.cc	numtoken.cc eoftoken.cc buffer.cc
+parser-cogen.o: parser-cogen.cc parser-cogen.h token.h keywordtoken.h punctoken.h reloptoken.h addoptoken.h muloptoken.h idtoken.h numtoken.h eoftoken.h scanner.h symbol_table.h register.h register_allocator.h emitter.h
+	g++ -w -c parser-cogen.cc token.cc keywordtoken.cc punctoken.cc reloptoken.cc addoptoken.cc muloptoken.cc idtoken.cc numtoken.cc eoftoken.cc scanner.cc symbol_table.cc register.cc register_allocator.cc emitter.cc
+truc.o: parser-cogen.h scanner.h truc.cc
 	g++ -w -c truc.cc
-truc: token.o keywordtoken.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser-semantic.o truc.o symbol_table.o
-	g++ -g -w -o truc truc.cc keywordtoken.o token.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser-semantic.o symbol_table.o	
+truc: token.o keywordtoken.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser-cogen.o truc.o symbol_table.o
+	g++ -g -w -o truc truc.cc keywordtoken.o token.o addoptoken.o idtoken.o eoftoken.o muloptoken.o numtoken.o punctoken.o reloptoken.o buffer.o scanner.o parser-cogen.o symbol_table.o	
 clean:
 	rm *.o

@@ -1,0 +1,24 @@
+program semt3;
+
+  i1, i2: int;
+  b1, b2: bool;
+
+begin
+  
+  # Lots of semantic errors.  Hopefully your
+  # program will find at least one.  Ideally,
+  # of course, you should find the first one.
+
+  # compare bool and int
+  i1 := b1 > 7;
+
+  # assign bool to int
+  i2 := b1 and b2; 
+
+  # assign int to bool
+  b1 := 0 + 1;
+
+  # combine bool and int
+  b2 := b1 or i2;
+
+end;

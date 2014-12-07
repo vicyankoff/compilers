@@ -1,0 +1,7 @@
+program semt2;
+
+begin
+
+  print a; #undeclared id
+
+end;

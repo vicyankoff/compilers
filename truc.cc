@@ -1,5 +1,5 @@
 #include "scanner.h"
-#include "parser-semantic.h"
+#include "parser-cogen.h"
 #include <iostream>
 using namespace std;
 
