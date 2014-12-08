@@ -9,6 +9,7 @@ Symbol_Table::Symbol_Table()
     table[i].position = -1;
     table[i].type = GARBAGE_T;
   }
+  e = new Emitter();
   size = 0;
 }
 
@@ -143,6 +144,16 @@ void Symbol_Table::error_stab_overflow (string *id, string *env)
   cout << *id << " in environment " << *env << endl;
   exit (-1);
 }
+
+void Symbol_Table::emit_data_directives()
+{
+  for (int i = 0; i < size; i++) {
+    if (table[i].type == INT_T || table[i].type == BOOL_T) {
+      e->emit_data_directive (table[i].id, 1);
+    }
+  }
+}
+
 
 void Symbol_Table::dump_table()
 {

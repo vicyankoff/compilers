@@ -1,0 +1,12 @@
+program viktor;
+
+	a:int;
+	b:int;
+
+begin
+	while a <= b 
+	begin
+		print a;
+	end;
+
+end;

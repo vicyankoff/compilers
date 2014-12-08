@@ -18,8 +18,8 @@ reloptoken.o: reloptoken.h token.h reloptoken.cc
 	g++ -w -c reloptoken.cc token.cc
 buffer.o: buffer.h buffer.cc
 	g++ -w -c buffer.cc
-symbol_table.o: symbol_table.h symbol_table.cc
-	g++ -w -c symbol_table.cc
+symbol_table.o: symbol_table.h symbol_table.cc emitter.h
+	g++ -w -c symbol_table.cc 
 register.o: register.h register.cc
 	g++ -w -c register.cc
 register_allocator.o: register_allocator.h register_allocator.cc register.h emitter.h symbol_table.h

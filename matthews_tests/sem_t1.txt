@@ -13,8 +13,8 @@ program semt1;
 
 begin # semt1
 
- b : = 1;
+ b := 1;
 
-#  p (b);
+ p (b);
 
 end; 

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include "emitter.h"
 
 using namespace std;
 
@@ -71,6 +72,8 @@ public:
 	// Print the contents of the table
 	void dump_table();
 	
+	void emit_data_directives();
+
 	int get_table_size();
 	
 	private:
@@ -85,7 +88,7 @@ public:
 
 	STAB_ENTRY table[MAX_SYMBOLS];
 
-
+	Emitter *e;
 	int size;
 	void error_stab_overflow (string *id, string *env);
 

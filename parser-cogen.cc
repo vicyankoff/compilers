@@ -59,8 +59,8 @@ void Parser::parse_error(string * expected, Token * found)
 	 			break;}
 	 		case TOKEN_ID:{
 	 			IdToken *token_id = static_cast<IdToken*>(found);
-				cout << *token_id -> to_string() << endl;
 	  			break;}
+				cout << *token_id -> to_string() << endl;
 	 		case TOKEN_NUM:{
 	 			NumToken *token_num = static_cast<NumToken*>(found);
 				cout << *token_num -> to_string() << endl;
@@ -195,7 +195,7 @@ bool Parser::parse_program()
 						{
 
 							e->emit_halt ();
-						
+							stab->emit_data_directives();
 							// ADVANCE
 							delete word;
 							word = lex->next_token();
@@ -724,6 +724,7 @@ bool Parser::parse_standard_type(expr_type &standard_type_type)
 
 bool Parser::parse_block()
 {
+
 	if (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_BEGIN) 
 	{
@@ -761,6 +762,7 @@ bool Parser::parse_block()
 
 bool Parser::parse_stmt_list() 
 {
+
 	if ( (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_IF)
 		|| (word->get_token_type() == TOKEN_KEYWORD
@@ -771,6 +773,7 @@ bool Parser::parse_stmt_list()
 	{
 		if (parse_stmt()) 
 		{
+
 			if (word->get_token_type() == TOKEN_PUNC
 				&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI) 
 			{
@@ -807,6 +810,7 @@ bool Parser::parse_stmt_list()
 
 bool Parser::parse_stmt_list_prm() 
 {
+	
 	if ( (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_IF)
 		|| (word->get_token_type() == TOKEN_KEYWORD
@@ -822,6 +826,7 @@ bool Parser::parse_stmt_list_prm()
 			{
 				delete word;
 				word = lex->next_token();
+
 				if (parse_stmt_list_prm()) 
 				{
 					return true;
@@ -1232,7 +1237,6 @@ bool Parser::parse_expr_list()
 	expr_type the_expr_type;
 
 	Register *expr_reg;
-
 	if (word->get_token_type() == TOKEN_ID
 		|| (word->get_token_type() == TOKEN_NUM)
 		|| (word->get_token_type() == TOKEN_PUNC
@@ -1720,7 +1724,6 @@ bool Parser::parse_factor(expr_type &factor_type, Register *&factor_reg)
 {
 	expr_type the_expr_type;
 	expr_type factor_type_two;
-
 	if (word->get_token_type() == TOKEN_ID) 
 	{
 		factor_reg = ra->allocate_register();
@@ -1796,7 +1799,6 @@ bool Parser::parse_factor(expr_type &factor_type, Register *&factor_reg)
 		if (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_NOT) 
 		{
-
 			delete word;
 			word = lex->next_token();
 
@@ -1827,6 +1829,7 @@ bool Parser::parse_factor(expr_type &factor_type, Register *&factor_reg)
 	} else if ((word->get_token_type() == TOKEN_ADDOP
 			&& static_cast<AddopToken *>(word)->get_attribute() == ADDOP_ADD))
 	{
+			
 		if (parse_sign()) 
 		{
 			if (parse_factor(factor_type_two, factor_reg)) 
@@ -1850,7 +1853,7 @@ bool Parser::parse_factor(expr_type &factor_type, Register *&factor_reg)
 		}
 	} else if ((word->get_token_type() == TOKEN_ADDOP
 		&& static_cast<AddopToken *>(word)->get_attribute() == ADDOP_SUB))
-	{		
+	{	
 		if (parse_sign()) 
 		{
 			if (parse_factor(factor_type_two, factor_reg)) 
@@ -1877,6 +1880,9 @@ bool Parser::parse_factor(expr_type &factor_type, Register *&factor_reg)
 	} else 
 	{
 		expected = new string ("identifier or num or ( or not or +...Failed to parse in parse_factor()");
+		parse_error (expected, word);
+		delete expected;
+		delete word;
 		return false;
 	}
 }

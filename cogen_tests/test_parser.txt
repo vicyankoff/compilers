@@ -74,7 +74,7 @@ begin
 	c := 12;
 	a := b;
 	d := 1 = 1;
-	d := (a * b * b / a * a > c) and d and (a * a + a - a = a) or (a < c); #same as parse_term_prm_test.txt
+	d := (a * b * b / a * a > c) and d and (a * a + a - a = a) or (a < c); #same as parse_term_prm_test.tx	t
 	d := not(d);
 	c := ------+-a;
 	#d := a := d; #this should fail
