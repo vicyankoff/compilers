@@ -60,9 +60,9 @@ private:
       // 14
 	bool parse_stmt();
       // 15
-	bool parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type);
+	bool parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type, string *id);
       // 16
-	bool parse_assignment_stmt_tail(expr_type &assignment_stmt_tail_type);
+	bool parse_assignment_stmt_tail(expr_type &assignment_stmt_tail_type, string *id);
       // 17
 	bool parse_if_stmt();
       // 18
@@ -78,19 +78,19 @@ private:
       // 23
 	bool parse_expr_list_hat();
       // 24
-	bool parse_expr(expr_type &the_expr_type);
+	bool parse_expr(expr_type &the_expr_type, Register *&expr_reg);
       // 25
-	bool parse_expr_hat(expr_type &expr_hat_type);
+	bool parse_expr_hat(expr_type &expr_hat_type, Register *&parent_reg);
       // 26
-	bool parse_simple_expr(expr_type &simple_expr_type);
+	bool parse_simple_expr(expr_type &simple_expr_type, Register *&expr_reg);
       // 27
-	bool parse_simple_expr_prm(expr_type &simple_expr_prm_type);
+	bool parse_simple_expr_prm(expr_type &simple_expr_prm_type, Register *&parent_reg);
       // 28
-	bool parse_term(expr_type &term_type);
+	bool parse_term(expr_type &term_type, Register *&term_reg);
       // 29
-	bool parse_term_prm(expr_type &term_prm_type);
+	bool parse_term_prm(expr_type &term_prm_type, Register *&parent_reg);
       // 30
-	bool parse_factor(expr_type &factor_type);
+	bool parse_factor(expr_type &factor_type, Register *&factor_reg);
       // 31
 	bool parse_sign();
 	
@@ -116,6 +116,9 @@ private:
 	 */
 	 int parm_pos;
 
+	 /* emitter */
+	 Emitter *e;
+	 Register_Allocator *ra;
 
 	 void variable_already_declared_error(string * variable);
 

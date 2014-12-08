@@ -15,6 +15,10 @@ Parser::Parser(Scanner *s)
 	main_env = NULL;
 	proc_call_env = NULL;
 	parm_pos = -1;
+
+	// construct the emitter for cogen
+	e = new Emitter();
+	ra = new Register_Allocator (e, stab);
 }
 
 Parser::~Parser() 
@@ -887,10 +891,11 @@ bool Parser::parse_stmt()
 				undeclared_id_error (static_cast<IdToken *>(word)->get_attribute(),
 				current_env, main_env, new string ("parse_stmt()") );
 			}
+
 		delete word;
 		word = lex->next_token();
 
-		if (parse_stmt_ass_proc_tail(stmt_ass_proc_tail_type)) 
+		if (parse_stmt_ass_proc_tail(stmt_ass_proc_tail_type, identifier)) 
 		{
 			if ( stab -> get_type (identifier, current_env) != stmt_ass_proc_tail_type)
 			{
@@ -911,13 +916,13 @@ bool Parser::parse_stmt()
 	}
 }
 
-bool Parser::parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type) 
+bool Parser::parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type, string *id) 
 {
 	expr_type assignment_stmt_tail_type;
 	if (word->get_token_type() == TOKEN_PUNC
 		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_ASSIGN) 
 	{
-		if (parse_assignment_stmt_tail(assignment_stmt_tail_type)) 
+		if (parse_assignment_stmt_tail(assignment_stmt_tail_type, id)) 
 		{
 			stmt_ass_proc_tail_type = assignment_stmt_tail_type;
 			return true;
@@ -946,17 +951,23 @@ bool Parser::parse_stmt_ass_proc_tail(expr_type &stmt_ass_proc_tail_type)
 	}
 }
 
-bool Parser::parse_assignment_stmt_tail(expr_type &assignment_stmt_tail_type)
+bool Parser::parse_assignment_stmt_tail(expr_type &assignment_stmt_tail_type, string *id)
 {
 	expr_type the_expr_type;
+
+	Register *expr_reg;
 	if (word->get_token_type() == TOKEN_PUNC
 		&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_ASSIGN) 
 	{
 		delete word;
 		word = lex->next_token();
 
-		if (parse_expr(the_expr_type)) 
+		if (parse_expr(the_expr_type, expr_reg)) 
 		{
+
+			e->emit_move (id, expr_reg);
+			ra->deallocate_register (expr_reg);
+
 			assignment_stmt_tail_type = the_expr_type;
 			return true;
 		} else 
@@ -976,18 +987,31 @@ bool Parser::parse_assignment_stmt_tail(expr_type &assignment_stmt_tail_type)
 bool Parser::parse_if_stmt() 
 {
 	expr_type the_expr_type;
+
+	/* Parse_expr will leave the register containign the value
+		of the expression here. */
+	Register *expr_reg;
+
 	if (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_IF) 
 	{
 		delete word;
 		word = lex->next_token();
 
-		if (parse_expr(the_expr_type)) 
+		if (parse_expr(the_expr_type, expr_reg)) 
 		{
 			if (the_expr_type != BOOL_T)
 			{
 				type_error(word, new string ("Expression in IF statement must be bool"));
 			}
+
+			/* code generation */
+			string *if_false = e->get_new_label ("if_false");
+			string *if_done = e->get_new_label ("if_done");
+
+			e->emit_branch (BREZ, expr_reg, if_false);
+			ra->deallocate_register (expr_reg);
+
 			if (word->get_token_type() == TOKEN_KEYWORD
 				&& static_cast<KeywordToken* >(word)->get_attribute() == KW_THEN) 
 			{
@@ -995,8 +1019,18 @@ bool Parser::parse_if_stmt()
 				word = lex->next_token();
 				if (parse_block()) 
 				{
+
+					/* code generation */
+					e->emit_branch (if_done);
+
+					e->emit_label (if_false);
+					delete if_false;
+
 					if (parse_if_stmt_hat()) 
 					{
+						e->emit_label (if_done);
+						delete if_done;
+
 						return true;
 					} else 
 					{
@@ -1061,19 +1095,37 @@ bool Parser::parse_if_stmt_hat()
 bool Parser::parse_while_stmt() 
 {
 	expr_type the_expr_type;
+	Register *expr_reg;
+
 	if (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_WHILE) 
 	{
 		delete word;
 		word = lex->next_token();
-		if (parse_expr(the_expr_type)) 
+
+		string *while_true = e->get_new_label ("while_true");
+		e->emit_label (while_true);
+
+		if (parse_expr(the_expr_type, expr_reg)) 
 		{
 			if (the_expr_type != BOOL_T)
 			{
 				type_error (word, new string ("Expression in WHILE statement must be a bool"));
 			}
+
+			string *while_done = e->get_new_label ("while_done");
+
+			e->emit_branch (BREZ, expr_reg, while_done);
+			ra->deallocate_register (expr_reg);
+
 			if (parse_block()) 
 			{
+				e->emit_branch (while_true);
+				delete while_true;
+
+				e->emit_label (while_done);
+				delete while_done;
+
 				return true;
 			} else 
 			{
@@ -1096,17 +1148,22 @@ bool Parser::parse_while_stmt()
 bool Parser::parse_print_stmt() 
 {
 	expr_type the_expr_type;
+	Register *expr_reg;
 	if (word->get_token_type() == TOKEN_KEYWORD
 		&& static_cast<KeywordToken *>(word)->get_attribute() == KW_PRINT) 
 	{
 		delete word;
 		word = lex->next_token();
-		if (parse_expr(the_expr_type)) 
+		if (parse_expr(the_expr_type, expr_reg)) 
 		{
 			if (the_expr_type != INT_T)
 			{
 				type_error (word, new string ("You can only print integer variables"));
 			}
+
+			e->emit_1addr (OUTB, expr_reg);
+			ra->deallocate_register (expr_reg);
+
 			return true; 
 		} else 
 		{
@@ -1164,6 +1221,8 @@ bool Parser::parse_expr_list()
 {
 	expr_type the_expr_type;
 
+	Register *expr_reg;
+
 	if (word->get_token_type() == TOKEN_ID
 		|| (word->get_token_type() == TOKEN_NUM)
 		|| (word->get_token_type() == TOKEN_PUNC
@@ -1175,7 +1234,7 @@ bool Parser::parse_expr_list()
 		|| (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_NOT))
 	{
-		if (parse_expr(the_expr_type)) 
+		if (parse_expr(the_expr_type, expr_reg)) 
 		{
 			if (the_expr_type != stab -> get_type (proc_call_env, parm_pos))
 			{
@@ -1238,7 +1297,7 @@ bool Parser::parse_expr_list_hat()
 	}
 }
 
-bool Parser::parse_expr(expr_type &the_expr_type) 
+bool Parser::parse_expr(expr_type &the_expr_type, Register *&expr_reg) 
 {
 	expr_type simple_expr_type, expr_hat_type;
 		
@@ -1253,9 +1312,9 @@ bool Parser::parse_expr(expr_type &the_expr_type)
 		|| (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_NOT))
 	{
-		if (parse_simple_expr(simple_expr_type)) 
+		if (parse_simple_expr(simple_expr_type, expr_reg)) 
 		{
-			if (parse_expr_hat(expr_hat_type)) 
+			if (parse_expr_hat(expr_hat_type, expr_reg)) 
 			{
 				/* semantics actions: calculate expr_type */
 				if (expr_hat_type == NO_T) 
@@ -1289,23 +1348,65 @@ bool Parser::parse_expr(expr_type &the_expr_type)
 	}
 }
 
-bool Parser::parse_expr_hat(expr_type &expr_hat_type) 
+bool Parser::parse_expr_hat(expr_type &expr_hat_type, Register *& parent_reg) 
 {
 	expr_type simple_expr_type;
+	Register * simple_expr_reg;
+	relop_attr_type the_relop;
+
 	if (word->get_token_type() == TOKEN_RELOP)
 	{
+		the_relop = static_cast<RelopToken *>(word)->get_attribute();
+
 		delete word;
 		word = lex->next_token();
-		if (parse_simple_expr(simple_expr_type)) 
+		if (parse_simple_expr(simple_expr_type, simple_expr_reg)) 
 		{
 			if (simple_expr_type == INT_T)
 			{
 				expr_hat_type = INT_T;
+
+					string * l1 = e->get_new_label("l1");
+					string * l2 = e->get_new_label("l2");
+					e->emit_2addr (SUB, parent_reg, simple_expr_reg);
+					ra->deallocate_register (simple_expr_reg);
+
+				if (the_relop == RELOP_EQ) {
+					e->emit_branch (BRPO, parent_reg, l1);
+					e->emit_branch (BRNE, parent_reg, l1);
+					
+				} else if (the_relop == RELOP_NEQ) {
+					e->emit_branch (BREZ, parent_reg, l1);
+					
+				} else if (the_relop == RELOP_GT) {
+					e->emit_branch (BRNE, parent_reg, l1);
+					e->emit_branch (BREZ, parent_reg, l1);
+
+				} else if (the_relop == RELOP_GE) {
+					e->emit_branch (BRNE, parent_reg, l1);
+
+				} else if (the_relop == RELOP_LT) {
+					e->emit_branch (BREZ, parent_reg, l1);
+					e->emit_branch (BRPO, parent_reg, l1);
+
+				} else if (the_relop == RELOP_LE) {
+					e->emit_branch (BRPO, parent_reg, l1);
+				} 
+
+				e->emit_move (parent_reg, 1);
+				e->emit_branch (l2);
+
+				e->emit_label (l1);
+				delete l1;
+				e->emit_move (parent_reg, 0);
+
+				e->emit_label (l2);
+				delete l2;
+
 			} else 
 			{
 				type_error (word, new string ("Incompatible types in expression. Method: parse_expr_hat()"));
 			}
-
 			return true;
 		} else
 		{
@@ -1334,7 +1435,7 @@ bool Parser::parse_expr_hat(expr_type &expr_hat_type)
 	}
 }
 
-bool Parser::parse_simple_expr(expr_type &simple_expr_type) 
+bool Parser::parse_simple_expr(expr_type &simple_expr_type, Register *&expr_reg) 
 {
 	expr_type term_type;
 	expr_type simple_expr_prm_type;
@@ -1350,9 +1451,9 @@ bool Parser::parse_simple_expr(expr_type &simple_expr_type)
 		|| (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_NOT))
 	{
-		if (parse_term(term_type)) 
+		if (parse_term(term_type, expr_reg)) 
 		{
-			if (parse_simple_expr_prm(simple_expr_prm_type)) 
+			if (parse_simple_expr_prm(simple_expr_prm_type, expr_reg))
 			{
 				if (simple_expr_prm_type == NO_T)
 				{
@@ -1383,11 +1484,16 @@ bool Parser::parse_simple_expr(expr_type &simple_expr_type)
 	}
 }
 
-bool Parser::parse_simple_expr_prm(expr_type &simple_expr_prm_type) 
+bool Parser::parse_simple_expr_prm(expr_type &simple_expr_prm_type, Register *&parent_reg) 
 {
 	expr_type term_type;
 	expr_type simple_expr_prm_type_two;
 	expr_type addop_type;
+
+	// For code generation
+	Register *term_reg;
+	addop_attr_type the_addop;
+
 
 	if (word->get_token_type() == TOKEN_ADDOP) 
 	{
@@ -1399,11 +1505,24 @@ bool Parser::parse_simple_expr_prm(expr_type &simple_expr_prm_type)
 		{
 			addop_type = BOOL_T;
 		}
+
+		// Remember the actual addop opration for code generation.
+		the_addop = static_cast<AddopToken *>(word)->get_attribute();
+
 		delete word;
 		word = lex->next_token();
-		if (parse_term(term_type)) 
+		if (parse_term(term_type, term_reg)) 
 		{
-			if (parse_simple_expr_prm(simple_expr_prm_type_two)) 
+
+			if (the_addop == ADDOP_SUB) { // integer subtraction
+				e->emit_2addr (SUB, parent_reg, term_reg);
+			} else { // integer addition of boolean
+				e->emit_2addr (ADD, parent_reg, term_reg);
+			}
+			// done with term_reg
+			ra->deallocate_register (term_reg);
+
+			if (parse_simple_expr_prm(simple_expr_prm_type_two, parent_reg)) 
 			{
 				if (simple_expr_prm_type_two == NO_T)
 				{
@@ -1455,7 +1574,7 @@ bool Parser::parse_simple_expr_prm(expr_type &simple_expr_prm_type)
 	}
 }
 
-bool Parser::parse_term(expr_type &term_type) 
+bool Parser::parse_term(expr_type &term_type, Register *&term_reg) 
 {
 	expr_type factor_type;
 	expr_type term_prm_type;
@@ -1471,9 +1590,9 @@ bool Parser::parse_term(expr_type &term_type)
 		|| (word->get_token_type() == TOKEN_KEYWORD
 			&& static_cast<KeywordToken *>(word)->get_attribute() == KW_NOT))
 	{
-		if (parse_factor(factor_type)) 
+		if (parse_factor(factor_type, term_reg)) 
 		{
-			if (parse_term_prm(term_prm_type)) 
+			if (parse_term_prm(term_prm_type, term_reg)) 
 			{
 				if (term_prm_type == NO_T)
 				{
@@ -1504,11 +1623,14 @@ bool Parser::parse_term(expr_type &term_type)
 	}
 }
 
-bool Parser::parse_term_prm(expr_type &term_prm_type) 
+bool Parser::parse_term_prm(expr_type &term_prm_type, Register *&parent_reg) 
 {
 	expr_type factor_type;
 	expr_type term_prm_type_two;
 	expr_type mulop_type;
+
+	Register *factor_reg;
+	mulop_attr_type the_mulop;
 
 	if (word->get_token_type() == TOKEN_MULOP) 
 	{
@@ -1519,12 +1641,25 @@ bool Parser::parse_term_prm(expr_type &term_prm_type)
 		} else if (static_cast<MulopToken *>(word)->get_attribute() == MULOP_AND)
 		{
 			mulop_type = BOOL_T;
-		} 
+		}
+
+		the_mulop = static_cast<MulopToken *>(word)->get_attribute();
+
 		delete word;
 		word = lex->next_token();
-		if (parse_factor(factor_type)) 
+		if (parse_factor(factor_type, factor_reg)) 
 		{
-			if (parse_term_prm(term_prm_type_two)) {
+
+			if (the_mulop == MULOP_DIV) { // integer division
+				e->emit_2addr (DIV, parent_reg, factor_reg);
+
+			} else { // integer multiplication or boolean and
+				e->emit_2addr (MUL, parent_reg, factor_reg);
+			}
+
+			ra->deallocate_register (factor_reg);
+
+			if (parse_term_prm(term_prm_type_two, parent_reg)) {
 
 				if (term_prm_type_two == NO_T && mulop_type == factor_type)
 				{
@@ -1571,10 +1706,13 @@ bool Parser::parse_term_prm(expr_type &term_prm_type)
 	}
 }
 
-bool Parser::parse_factor(expr_type &factor_type)
+bool Parser::parse_factor(expr_type &factor_type, Register *&factor_reg)
 {
 	expr_type the_expr_type;
 	expr_type factor_type_two;
+
+	factor_reg = ra->allocate_register();
+
 	if (word->get_token_type() == TOKEN_ID) 
 	{
 		if (stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(), current_env))
@@ -1588,6 +1726,8 @@ bool Parser::parse_factor(expr_type &factor_type)
 		{
 			undeclared_id_error (static_cast<IdToken *>(word)->get_attribute(), current_env, main_env, new string ("parse_factor()"));
 		}
+
+		e->emit_move (factor_reg, static_cast<IdToken *>(word)->get_attribute());
 		delete word;
 		word = lex->next_token();
 		return true;
@@ -1595,6 +1735,8 @@ bool Parser::parse_factor(expr_type &factor_type)
 	} else if (word->get_token_type() == TOKEN_NUM) 
 	{	
 		factor_type = INT_T;
+		e->emit_move (factor_reg, static_cast<NumToken *>(word)->get_attribute());
+
 		delete word;
 		word = lex->next_token();
 		return true;
@@ -1609,7 +1751,7 @@ bool Parser::parse_factor(expr_type &factor_type)
 			delete word;
 			word = lex->next_token();
 
-			if (parse_expr(the_expr_type)) 
+			if (parse_expr(the_expr_type, factor_reg)) 
 			{
 				if (word->get_token_type() == TOKEN_PUNC
 					&& static_cast<PuncToken*>(word)->get_attribute() == PUNC_CLOSE) 
@@ -1648,7 +1790,7 @@ bool Parser::parse_factor(expr_type &factor_type)
 			delete word;
 			word = lex->next_token();
 
-			if (parse_factor(factor_type_two)) 
+			if (parse_factor(factor_type_two, factor_reg)) 
 			{
 				if (factor_type_two == BOOL_T)
 				{
@@ -1657,6 +1799,8 @@ bool Parser::parse_factor(expr_type &factor_type)
 				{
 					type_error (word, new string ("Incompatible types in expression"));
 				}
+
+				e->emit_1addr (NOT, factor_reg);
 				return true;
 			} else 
 			{
@@ -1671,17 +1815,16 @@ bool Parser::parse_factor(expr_type &factor_type)
 			return false;
 		}
 	} else if ((word->get_token_type() == TOKEN_ADDOP
-			&& static_cast<AddopToken *>(word)->get_attribute() == ADDOP_ADD)
-		|| (word->get_token_type() == TOKEN_ADDOP
-			&& static_cast<AddopToken *>(word)->get_attribute() == ADDOP_SUB))
+			&& static_cast<AddopToken *>(word)->get_attribute() == ADDOP_ADD))
 	{
 		if (parse_sign()) 
 		{
-			if (parse_factor(factor_type_two)) 
+			if (parse_factor(factor_type_two, factor_reg)) 
 			{
 				if (factor_type_two == INT_T)
 				{
 					factor_type = INT_T;
+
 				} else 
 				{
 					type_error (word, new string ("Incompatible types in expression"));
@@ -1695,6 +1838,32 @@ bool Parser::parse_factor(expr_type &factor_type)
 		{
 			return false;
 		}
+	} else if ((word->get_token_type() == TOKEN_ADDOP
+		&& static_cast<AddopToken *>(word)->get_attribute() == ADDOP_SUB))
+	{		
+		if (parse_sign()) 
+		{
+			if (parse_factor(factor_type_two, factor_reg)) 
+			{
+				if (factor_type_two == INT_T)
+				{
+					factor_type = INT_T;
+					e->emit_1addr (NEG, factor_reg);
+
+				} else 
+				{
+					type_error (word, new string ("Incompatible types in expression"));
+				}
+				return true;
+			} else 
+			{
+				return false;
+			}
+		} else 
+		{
+			return false;
+		}
+
 	} else 
 	{
 		expected = new string ("identifier or num or ( or not or +...Failed to parse in parse_factor()");
