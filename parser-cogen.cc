@@ -164,6 +164,13 @@ bool Parser::parse_program()
 			current_env = static_cast<IdToken *>(word)->get_attribute();
 			main_env = static_cast<IdToken *>(word)->get_attribute();
 
+			// Emit the program header
+			string * program_name = static_cast<IdToken *>(word)->get_attribute();
+			program_name->append ("_");
+			string * program_lable = e->get_new_label(program_name->c_str());
+			e->emit_label (program_lable);
+			delete program_lable;
+
 			// ADVANCE
 			delete word;
 			word = lex->next_token();	
@@ -187,6 +194,8 @@ bool Parser::parse_program()
 							&& static_cast<PuncToken *>(word)->get_attribute() == PUNC_SEMI)
 						{
 
+							e->emit_halt ();
+						
 							// ADVANCE
 							delete word;
 							word = lex->next_token();
@@ -897,7 +906,8 @@ bool Parser::parse_stmt()
 
 		if (parse_stmt_ass_proc_tail(stmt_ass_proc_tail_type, identifier)) 
 		{
-			if ( stab -> get_type (identifier, current_env) != stmt_ass_proc_tail_type)
+			if ( stab -> get_type (identifier, current_env) != stmt_ass_proc_tail_type
+				&& stab -> get_type (identifier, main_env) != stmt_ass_proc_tail_type)
 			{
 				type_error(word, new string ("Incompatible types in assignment. Method: parse_stmt()"));
 			}
@@ -1006,8 +1016,8 @@ bool Parser::parse_if_stmt()
 			}
 
 			/* code generation */
-			string *if_false = e->get_new_label ("if_false");
-			string *if_done = e->get_new_label ("if_done");
+			string *if_false = e->get_new_label ("if_false_");
+			string *if_done = e->get_new_label ("if_done_");
 
 			e->emit_branch (BREZ, expr_reg, if_false);
 			ra->deallocate_register (expr_reg);
@@ -1103,7 +1113,7 @@ bool Parser::parse_while_stmt()
 		delete word;
 		word = lex->next_token();
 
-		string *while_true = e->get_new_label ("while_true");
+		string *while_true = e->get_new_label ("while_true_");
 		e->emit_label (while_true);
 
 		if (parse_expr(the_expr_type, expr_reg)) 
@@ -1113,7 +1123,7 @@ bool Parser::parse_while_stmt()
 				type_error (word, new string ("Expression in WHILE statement must be a bool"));
 			}
 
-			string *while_done = e->get_new_label ("while_done");
+			string *while_done = e->get_new_label ("while_done_");
 
 			e->emit_branch (BREZ, expr_reg, while_done);
 			ra->deallocate_register (expr_reg);
@@ -1366,8 +1376,8 @@ bool Parser::parse_expr_hat(expr_type &expr_hat_type, Register *& parent_reg)
 			{
 				expr_hat_type = INT_T;
 
-					string * l1 = e->get_new_label("l1");
-					string * l2 = e->get_new_label("l2");
+					string * l1 = e->get_new_label("false");
+					string * l2 = e->get_new_label("cond_done");
 					e->emit_2addr (SUB, parent_reg, simple_expr_reg);
 					ra->deallocate_register (simple_expr_reg);
 
@@ -1711,10 +1721,9 @@ bool Parser::parse_factor(expr_type &factor_type, Register *&factor_reg)
 	expr_type the_expr_type;
 	expr_type factor_type_two;
 
-	factor_reg = ra->allocate_register();
-
 	if (word->get_token_type() == TOKEN_ID) 
 	{
+		factor_reg = ra->allocate_register();
 		if (stab -> is_decl (static_cast<IdToken *>(word)->get_attribute(), current_env))
 		{
 			factor_type = stab -> get_type (static_cast<IdToken *>(word)->get_attribute(), current_env);
@@ -1734,6 +1743,7 @@ bool Parser::parse_factor(expr_type &factor_type, Register *&factor_reg)
 
 	} else if (word->get_token_type() == TOKEN_NUM) 
 	{	
+		factor_reg = ra->allocate_register();
 		factor_type = INT_T;
 		e->emit_move (factor_reg, static_cast<NumToken *>(word)->get_attribute());
 

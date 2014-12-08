@@ -1,0 +1,7 @@
+program viktor;
+	a: int;
+
+begin
+	a:= 5;
+	print a;
+end;

@@ -1,0 +1,8 @@
+program viktor;
+	a: int;
+	b: int;
+	c: int;
+	d: bool;
+begin
+ 	d:= (a < b) and (a > b);
+end;

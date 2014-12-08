@@ -1,0 +1,9 @@
+program viktor;
+	a: int;
+	procedure viktor1(b:int)
+	begin
+		a:= b;
+	end;
+begin
+	print a;
+end;

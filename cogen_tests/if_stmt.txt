@@ -1,0 +1,14 @@
+program viktor;
+	a: int;
+	b: int;
+	c: int;
+begin
+	if a + c < b then
+	begin
+		print b;
+	end
+	else 
+	begin
+		print a;
+	end;
+end;
