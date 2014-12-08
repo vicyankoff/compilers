@@ -59,8 +59,8 @@ void Parser::parse_error(string * expected, Token * found)
 	 			break;}
 	 		case TOKEN_ID:{
 	 			IdToken *token_id = static_cast<IdToken*>(found);
-	  			break;}
 				cout << *token_id -> to_string() << endl;
+	  			break;}
 	 		case TOKEN_NUM:{
 	 			NumToken *token_num = static_cast<NumToken*>(found);
 				cout << *token_num -> to_string() << endl;
