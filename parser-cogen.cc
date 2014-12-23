@@ -1380,10 +1380,10 @@ bool Parser::parse_expr_hat(expr_type &expr_hat_type, Register *& parent_reg)
 			{
 				expr_hat_type = INT_T;
 
-					string * l1 = e->get_new_label("false");
-					string * l2 = e->get_new_label("cond_done");
-					e->emit_2addr (SUB, parent_reg, simple_expr_reg);
-					ra->deallocate_register (simple_expr_reg);
+				string * l1 = e->get_new_label("false");
+				string * l2 = e->get_new_label("cond_done");
+				e->emit_2addr (SUB, parent_reg, simple_expr_reg);
+				ra->deallocate_register (simple_expr_reg);
 
 				if (the_relop == RELOP_EQ) {
 					e->emit_branch (BRPO, parent_reg, l1);

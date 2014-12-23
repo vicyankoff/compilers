@@ -1,3 +1,4 @@
+
 #include "numtoken.h"
 
 /* Create a new token with no attributes. */
